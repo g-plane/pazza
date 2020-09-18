@@ -1,4 +1,4 @@
-import { assertEquals } from "/mnt/work/deno/std/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.69.0/testing/asserts.ts";
 import { between, serial, char, digit, ErrorKind } from "../mod.ts";
 
 Deno.test("between", () => {
