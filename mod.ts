@@ -4,6 +4,7 @@ export * from "./src/char.ts";
 export * from "./src/combinator.ts";
 export * from "./src/core.ts";
 export * from "./src/error.ts";
+export * from "./src/misc.ts";
 export * from "./src/multi.ts";
 export * from "./src/sequence.ts";
 export * from "./src/space.ts";
