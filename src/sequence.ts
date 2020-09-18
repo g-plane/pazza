@@ -31,40 +31,29 @@ export function between<L, R, T, EL, ER, ET, I extends Input>(
   };
 }
 
-export function serial<
-  P extends IParser<unknown, unknown, string>[],
->(...parsers: P):
-  & IParser<
-    {
-      [K in keyof P]: P[K] extends IParser<infer O, infer _, string> ? O
-        : never;
-    },
-    P[number] extends IParser<infer _, infer E, string> ? E : never,
-    string
-  >
-  & { parsers: P };
-export function serial<
-  P extends IParser<unknown, unknown, Uint8Array>[],
->(...parsers: P):
-  & IParser<
-    {
-      [K in keyof P]: P[K] extends IParser<infer O, infer _, Uint8Array> ? O
-        : never;
-    },
-    P[number] extends IParser<infer _, infer E, Uint8Array> ? E : never,
-    Uint8Array
-  >
-  & { parsers: P };
+type SerialOutput<
+  I extends Input,
+  P extends readonly IParser<unknown, unknown, I>[],
+> = { [K in keyof P]: P[K] extends IParser<infer O, infer _, I> ? O : never };
+type SerialError<
+  I extends Input,
+  P extends readonly IParser<unknown, unknown, I>[],
+> = P[number] extends IParser<infer _, infer E, I> ? E : never;
+type SerialParser<
+  I extends Input,
+  P extends readonly IParser<unknown, unknown, I>[],
+> = IParser<SerialOutput<I, P>, SerialError<I, P>, I> & { parsers: P };
+
+export function serial<P extends IParser<unknown, unknown, string>[]>(
+  ...parsers: P
+): SerialParser<string, P>;
+export function serial<P extends IParser<unknown, unknown, Uint8Array>[]>(
+  ...parsers: P
+): SerialParser<Uint8Array, P>;
 export function serial<
   I extends Input,
   P extends IParser<unknown, unknown, I>[],
->(...parsers: P):
-  & IParser<
-    { [K in keyof P]: P[K] extends IParser<infer O, infer _, I> ? O : never },
-    P[number] extends IParser<infer _, infer E, I> ? E : never,
-    I
-  >
-  & { parsers: P } {
+>(...parsers: P): SerialParser<I, P> {
   return {
     parsers,
     parse(input) {
@@ -77,7 +66,7 @@ export function serial<
           return result as {
             ok: false;
             input: I;
-            error: P[number] extends IParser<infer _, infer E, I> ? E : never;
+            error: SerialError<I, P>;
           };
         }
 
@@ -88,9 +77,7 @@ export function serial<
       return {
         ok: true,
         input,
-        output: output as {
-          [K in keyof P]: P[K] extends IParser<infer O, infer _, I> ? O : never;
-        },
+        output: output as SerialOutput<I, P>,
       };
     },
   };

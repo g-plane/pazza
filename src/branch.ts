@@ -25,31 +25,25 @@ type ChoiceError<
   I extends Input,
   P extends readonly IParser<unknown, unknown, I>[],
 > = P[number] extends IParser<infer _, infer E, I> ? E : never;
+type ChoiceParser<
+  I extends Input,
+  P extends readonly IParser<unknown, unknown, I>[],
+> = IParser<ChoiceOutput<I, P>, ChoiceError<I, P>, I> & { parsers: P };
 type ChoiceResult<
   I extends Input,
   P extends readonly IParser<unknown, unknown, I>[],
 > = Result<I, ChoiceOutput<I, P>, ChoiceError<I, P>>;
 
-export function choice<
-  P extends readonly IParser<unknown, unknown, string>[],
->(
+export function choice<P extends readonly IParser<unknown, unknown, string>[]>(
   ...parsers: P
-): IParser<ChoiceOutput<string, P>, ChoiceError<string, P>, string> & {
-  parsers: P;
-};
+): ChoiceParser<string, P>;
 export function choice<
   P extends readonly IParser<unknown, unknown, Uint8Array>[],
->(
-  ...parsers: P
-): IParser<ChoiceOutput<Uint8Array, P>, ChoiceError<Uint8Array, P>, string> & {
-  parsers: P;
-};
+>(...parsers: P): ChoiceParser<Uint8Array, P>;
 export function choice<
   I extends Input,
   P extends readonly IParser<unknown, unknown, I>[],
->(
-  ...parsers: P
-): IParser<ChoiceOutput<I, P>, ChoiceError<I, P>, I> & { parsers: P } {
+>(...parsers: P): ChoiceParser<I, P> {
   return {
     parsers,
     parse(input) {
