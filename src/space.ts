@@ -136,14 +136,14 @@ export function tab(): IParser<"\t", ErrorKind.Tab, string> {
   };
 }
 
-export function trim(): IParser<undefined, never, string> {
+interface TrimParser<O, E> extends IParser<O, E, string> {
+  parser: IParser<O, E, string>;
+}
+export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
   return {
+    parser,
     parse(input) {
-      return {
-        ok: true,
-        input: input.trimLeft(),
-        output: undefined,
-      };
+      return this.parser.parse(input.trimStart());
     },
   };
 }

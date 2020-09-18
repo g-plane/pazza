@@ -8,6 +8,7 @@ import {
   tab,
   trim,
   eof,
+  alpha,
   ErrorKind,
 } from "../mod.ts";
 
@@ -102,11 +103,11 @@ Deno.test("tab", () => {
 });
 
 Deno.test("trim", () => {
-  const result = trim().parse("  \n  \t  \r  \f  abc");
+  const result = trim(alpha()).parse("  \n  \t  \r  \f  abc");
   assertEquals(result, {
     ok: true,
-    input: "abc",
-    output: undefined,
+    input: "bc",
+    output: "a",
   });
 });
 
