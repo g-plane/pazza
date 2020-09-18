@@ -1,6 +1,11 @@
 import type { IParser, Input } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
+/**
+ * Parse a single "space" character. It outputs a single "space" character.
+ *
+ *     space().parse(" ").output === " ";
+ */
 export function space(): IParser<" ", ErrorKind.Space, string> {
   return {
     parse(input) {
@@ -21,6 +26,11 @@ export function space(): IParser<" ", ErrorKind.Space, string> {
   };
 }
 
+/**
+ * Parse a single "carriage return" character. It outputs a "carriage return" character.
+ *
+ *     cr().parse("\r").output === "\r";
+ */
 export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
   return {
     parse(input) {
@@ -41,6 +51,11 @@ export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
   };
 }
 
+/**
+ * Parse a single "line feed" character. It outputs a "line feed" character.
+ *
+ *     lf().parse("\n").output === "\n";
+ */
 export function lf(): IParser<"\n", ErrorKind.LineFeed, string> {
   return {
     parse(input) {
@@ -61,6 +76,12 @@ export function lf(): IParser<"\n", ErrorKind.LineFeed, string> {
   };
 }
 
+/**
+ * Parse paired "carriage return - line feed" characters.
+ * It outputs "carriage return - line feed" characters.
+ *
+ *     crlf().parse("\r\n").output === "\r\n";
+ */
 export function crlf(): IParser<
   "\r\n",
   ErrorKind.CarriageReturnLineFeed,
@@ -85,6 +106,13 @@ export function crlf(): IParser<
   };
 }
 
+/**
+ * Parse linebreak, which can be "\n" or "\r\n".
+ * It outputs linebreak.
+ *
+ *     linebreak().parse("\n").output === "\n";
+ *     linebreak().parse("\r\n").output === "\r\n";
+ */
 export function linebreak(): IParser<
   "\n" | "\r\n",
   ErrorKind.Linebreak,
@@ -116,6 +144,11 @@ export function linebreak(): IParser<
   };
 }
 
+/**
+ * Parse a single "tab" character. It outputs a "tab" character.
+ *
+ *     tab().parse("\t").output === "\t";
+ */
 export function tab(): IParser<"\t", ErrorKind.Tab, string> {
   return {
     parse(input) {
@@ -139,6 +172,14 @@ export function tab(): IParser<"\t", ErrorKind.Tab, string> {
 interface TrimParser<O, E> extends IParser<O, E, string> {
   parser: IParser<O, E, string>;
 }
+/**
+ * Trim heading whitespace characters by calling `String.prototype.trim`,
+ * then pass the trimmed input to embedded parser.
+ *
+ *     trim(alpha()).parse(" \f\r\n\ta").output === "a";
+ *
+ * @param parser embedded parser
+ */
 export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
   return {
     parser,
@@ -148,6 +189,11 @@ export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
   };
 }
 
+/**
+ * Expect input is empty, otherwise it produces a parsing error.
+ *
+ * Input type can be `string` or `Uint8Arrar`.
+ */
 export function eof(): IParser<undefined, ErrorKind.EndOfFile, Input> {
   return {
     parse(input) {
