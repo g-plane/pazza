@@ -119,18 +119,3 @@ export function jsonValue(): IParser<JsonValue> {
     ))
   );
 }
-
-console.log(
-  jsonValue().parse(`
-    [
-      2,
-      true,
-      "test",
-      false,
-      {
-        "a": "b",
-        "c": null
-      }
-    ]
-`),
-);
