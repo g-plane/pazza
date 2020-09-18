@@ -121,32 +121,32 @@ export function noneOfChars<S extends readonly string[]>(
   };
 }
 
-interface EscapedWithParser<R extends readonly string[]>
-  extends IParser<R[number], ErrorKind.EscapedWith, string> {
+interface EscapedWithParser<V>
+  extends IParser<V, ErrorKind.EscapedWith, string> {
   controlCharCode: number;
-  charCodes: number[];
+  map: Map<number, V>;
 }
-export function escapedWith<R extends readonly string[]>(
+export function escapedWith<V>(
   controlChar: string,
-  chars: R,
-): EscapedWithParser<R> {
+  entries: readonly (readonly [string, V])[],
+): EscapedWithParser<V> {
   ensureSingleCharacter(controlChar);
-  chars.forEach(ensureSingleCharacter);
+  entries.forEach(([key]) => ensureSingleCharacter(key));
 
   return {
     controlCharCode: controlChar.charCodeAt(0),
-    charCodes: chars.map((char) => char.charCodeAt(0)),
+    map: new Map(entries.map(([key, value]) => [key.charCodeAt(0), value])),
     parse(input) {
-      const { controlCharCode, charCodes } = this;
+      const { controlCharCode, map } = this;
       const firstCharCode = input.charCodeAt(0);
 
       if (firstCharCode === controlCharCode) {
-        const secondCharCode = input.charCodeAt(1);
-        if (charCodes.includes(secondCharCode)) {
+        const value = map.get(input.charCodeAt(1));
+        if (value !== undefined) {
           return {
             ok: true,
             input: input.slice(2),
-            output: input[1] as R[number],
+            output: value,
           };
         } else {
           return {

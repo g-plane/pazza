@@ -123,44 +123,38 @@ Deno.test("noneOfChars", () => {
 
 Deno.test("escapedWith", () => {
   assertThrows(
-    () => escapedWith("", ["a", "b"]),
+    () => escapedWith("", [["a", ""], ["b", ""]]),
     TypeError,
     "Argument of character parser must be a single character.",
   );
 
   assertThrows(
-    () => escapedWith("ab", ["a", "b"]),
+    () => escapedWith("ab", [["a", ""], ["b", ""]]),
     TypeError,
     "Argument of character parser must be a single character.",
   );
 
   assertThrows(
-    () => escapedWith("a", ["ab", "b"]),
+    () => escapedWith("a", [["ab", ""], ["c", ""]]),
     TypeError,
     "Argument of character parser must be a single character.",
   );
 
   assertThrows(
-    () => escapedWith("a", ["a", ""]),
+    () => escapedWith("a", [["", ""], ["ab", ""]]),
     TypeError,
     "Argument of character parser must be a single character.",
   );
 
-  const chars = ["n", "r", "\\"] as const;
+  const chars = [["n", "\n"], ["\\", "\\"]] as const;
   const parser = escapedWith("\\", chars);
 
-  chars.forEach((char) => {
+  chars.forEach(([char, raw]) => {
     assertEquals(parser.parse(`\\${char}`), {
       ok: true,
       input: "",
-      output: char,
+      output: raw,
     });
-  });
-
-  assertEquals(parser.parse("\\"), {
-    ok: false,
-    input: "\\",
-    error: ErrorKind.EscapedWith,
   });
 
   assertEquals(parser.parse("\\t"), {
