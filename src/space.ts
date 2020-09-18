@@ -192,7 +192,10 @@ export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
 /**
  * Expect input is empty, otherwise it produces a parsing error.
  *
- * Input type can be `string` or `Uint8Arrar`.
+ * Input type can be `string` or `Uint8Array`.
+ *
+ *     eof().parse("").ok === true;
+ *     eof().parse(Uint8Array.of()).ok === true;
  */
 export function eof(): IParser<undefined, ErrorKind.EndOfFile, Input> {
   return {
