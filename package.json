@@ -1,0 +1,22 @@
+{
+  "name": "pazza",
+  "version": "0.1.0",
+  "description": "Modern and tree-shakable parser combinators library.",
+  "author": "Pig Fang <g-plane@hotmail.com>",
+  "repository": "g-plane/pazza",
+  "license": "MIT",
+  "keywords": ["parser", "combinators", "tree-shaking"],
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/es/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./": {
+      "import": "./dist/es/",
+      "require": "./dist/cjs/"
+    }
+  },
+  "files": ["dist"]
+}
