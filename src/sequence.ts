@@ -1,5 +1,20 @@
 import type { IParser, Input } from "./core.ts";
 
+/**
+ * Execute the embedded parser with a specified prefix and suffix.
+ *
+ * If the prefix parser or suffix parser fails, the whole parser will fail.
+ *
+ *     const parser = between(char("["), char("]"), digit());
+ *     parser.parse("[5]").output === "5";
+ *     parser.parse("(5]").ok === false;
+ *     parser.parse("[a]").ok === false;
+ *     parser.parse("[5)").ok === false;
+ *
+ * @param start Parser to parse the prefix.
+ * @param end Parser to parse the suffix.
+ * @param parser Embedded parser.
+ */
 export function between<L, R, T, EL, ER, ET, I extends Input>(
   start: IParser<L, EL, I>,
   end: IParser<R, ER, I>,
@@ -44,9 +59,35 @@ type SerialParser<
   P extends readonly IParser<unknown, unknown, I>[],
 > = IParser<SerialOutput<I, P>, SerialError<I, P>, I> & { parsers: P };
 
+/**
+ * Execute a series of parsers and follow its order.
+ * Once a parser fails,
+ * the whole parser will fail and return last parsing error.
+ *
+ *     const parser = serial(char("<"), char("-"), char(">"));
+ *     parser.parse("<->").output; // ==> ["<", "-", ">"]
+ *     parser.parse(">-<").ok === false;
+ *     parser.parse("<-!").ok === false;
+ *     parser.parse("<_>").ok === false;
+ *
+ * @param parsers Series of parser. Order is sensitive.
+ */
 export function serial<P extends IParser<unknown, unknown, string>[]>(
   ...parsers: P
 ): SerialParser<string, P>;
+/**
+ * Execute a series of parsers and follow its order.
+ * Once a parser fails,
+ * the whole parser will fail and return last parsing error.
+ *
+ *     const parser = serial(byte(13), byte(10), byte(65));
+ *     parser.parse(Uint8Array.of(13, 10, 65)).output; // ==> Uint8Array [13, 10, 65]
+ *     parser.parse(Uint8Array.of(13, 65, 10)).ok === false;
+ *     parser.parse(Uint8Array.of(13, 10, 66)).ok === false;
+ *     parser.parse(Uint8Array.of(13, 11, 65)).ok === false;
+ *
+ * @param parsers Series of parser. Order is sensitive.
+ */
 export function serial<P extends IParser<unknown, unknown, Uint8Array>[]>(
   ...parsers: P
 ): SerialParser<Uint8Array, P>;

@@ -2,8 +2,8 @@ import type { IParser, Input, Result } from "./core.ts";
 
 /**
  * Attempt to run "left" parser at first.
- * If it succeeded, return its result.
- * If it failed, run "right" parser.
+ * If it succeeds, return its result.
+ * If it fails, run "right" parser.
  *
  *     or(digit(), alpha()).parse("4").output === "4";
  *     or(digit(), alpha()).parse("a").output === "a";
@@ -68,7 +68,7 @@ export function choice<P extends readonly IParser<unknown, unknown, string>[]>(
  *     parser.parse(Uint8Array.of(3)).output === 3;
  *     parser.parse(Uint8Array.of()).ok === false;
  *
- * @param parsers
+ * @param parsers Alternative parsers. Order is insensitive.
  */
 export function choice<
   P extends readonly IParser<unknown, unknown, Uint8Array>[],

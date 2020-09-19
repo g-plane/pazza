@@ -1,6 +1,16 @@
 import type { IParser, Input } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
+/**
+ * Execute the embedded parser.
+ * If it succeeds, apply provided function on the output.
+ *
+ *     const parser = map(digit(), value => Number.parseInt(value));
+ *     parser.parse("5").output === 5;
+ *
+ * @param parser embededd parser
+ * @param fn function to be applied on successful output
+ */
 export function map<T, U, E, I extends Input>(
   parser: IParser<T, E, I>,
   fn: (arg: T) => U,
@@ -17,6 +27,16 @@ export function map<T, U, E, I extends Input>(
   };
 }
 
+/**
+ * Execute the embedded parser.
+ * If it fails, apply provided function on the error.
+ *
+ *     const parser = map(digit(), error => "Not a digit.");
+ *     parser.parse("a").error === "Not a digit.";
+ *
+ * @param parser embededd parser
+ * @param fn function to be applied on error
+ */
 export function mapErr<T, E1, E2, I extends Input>(
   parser: IParser<T, E1, I>,
   fn: (error: E1) => E2,
@@ -33,6 +53,17 @@ export function mapErr<T, E1, E2, I extends Input>(
   };
 }
 
+/**
+ * Execute the embedded parser.
+ * If it succeeds, return its value.
+ * If it fails, return `null` with a successful result.
+ *
+ *     const result = optional(digit()).parse("a");
+ *     result.ok === true;
+ *     result.output === null;
+ *
+ * @param parser embedded parser
+ */
 export function optional<T, I extends Input>(
   parser: IParser<T, unknown, I>,
 ): IParser<T | null, never, I> {
@@ -73,9 +104,29 @@ export function skip<T, EP, EO, I extends Input>(
   };
 }
 
+/**
+ * Pick next character from input and pass it to provided predicate.
+ * If the predicate passes, return a successful parsing result with that character.
+ * If not, return a parsing error.
+ *
+ *     satisfy((char) => char === "a").parse("a").output === "a";
+ *     satisfy((char) => char === "a").parse("b").ok === false;
+ *
+ * @param predicate predicate which tests next character
+ */
 export function satisfy<P extends (item: string) => boolean>(
   predicate: P,
 ): IParser<string, ErrorKind.Satisfy, string> & { predicate: P };
+/**
+ * Pick next byte from input and pass it to provided predicate.
+ * If the predicate passes, return a successful parsing result with that byte.
+ * If not, return a parsing error.
+ *
+ *     satisfy((byte) => byte === 10).parse(Uint8Array.of(10)).output === 10;
+ *     satisfy((byte) => byte === 10).parse(Uint8Array.of(13)).ok === false;
+ *
+ * @param predicate predicate which tests next byte (8-bit unsigned integer)
+ */
 export function satisfy<P extends (item: number) => boolean>(
   predicate: P,
 ): IParser<number, ErrorKind.Satisfy, Uint8Array> & { predicate: P };

@@ -9,6 +9,7 @@ interface ByteParser<B extends number>
  * Parse a specified byte.
  *
  *     byte(10).parse(Uint8Array.of(10)).output === 10;
+ *     byte(10).parse(Uint8Array.of(11)).ok === false;
  *
  * @param byte 8-bit unsigned integer
  */
