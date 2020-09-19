@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
 import { pass, fail } from "./_.ts";
-import { map, mapErr, optional, skip, satisfy } from "../mod.ts";
+import { map, mapErr, optional, satisfy } from "../mod.ts";
 import { ErrorKind } from "../src/error.ts";
 
 Deno.test("map", () => {
@@ -42,26 +42,6 @@ Deno.test("optional", () => {
     ok: true,
     input: "",
     output: null,
-  });
-});
-
-Deno.test("skip", () => {
-  assertEquals(skip(pass("test"), pass()).parse(""), {
-    ok: true,
-    input: "",
-    output: "test",
-  });
-
-  assertEquals(skip(fail(), pass()).parse("a"), {
-    ok: false,
-    input: "a",
-    error: "Fake parsing error.",
-  });
-
-  assertEquals(skip(pass(), fail()).parse(""), {
-    ok: false,
-    input: "",
-    error: "Fake parsing error.",
   });
 });
 

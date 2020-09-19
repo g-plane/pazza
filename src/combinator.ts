@@ -83,27 +83,6 @@ export function optional<T, I extends Input>(
   };
 }
 
-export function skip<T, EP, EO, I extends Input>(
-  parser: IParser<T, EP, I>,
-  omit: IParser<unknown, EO, I>,
-): IParser<T, EP | EO, I> {
-  return {
-    parse(input) {
-      const result = parser.parse(input);
-      if (!result.ok) {
-        return result;
-      }
-
-      const skipped = omit.parse(result.input);
-      if (!skipped.ok) {
-        return skipped;
-      }
-
-      return { ...result, input: skipped.input };
-    },
-  };
-}
-
 /**
  * Pick next character from input and pass it to provided predicate.
  * If the predicate passes, return a successful parsing result with that character.

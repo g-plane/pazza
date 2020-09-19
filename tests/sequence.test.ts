@@ -1,5 +1,13 @@
 import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { between, serial, char, digit, ErrorKind } from "../mod.ts";
+import {
+  between,
+  serial,
+  prefix,
+  suffix,
+  char,
+  digit,
+  ErrorKind,
+} from "../mod.ts";
 
 Deno.test("between", () => {
   assertEquals(
@@ -36,5 +44,49 @@ Deno.test("serial", () => {
     ok: false,
     input: "4",
     error: ErrorKind.Char,
+  });
+});
+
+Deno.test("prefix", () => {
+  const parser = prefix(char("<"), digit());
+
+  assertEquals(parser.parse("<5"), {
+    ok: true,
+    input: "",
+    output: "5",
+  });
+
+  assertEquals(parser.parse("[5"), {
+    ok: false,
+    input: "[5",
+    error: ErrorKind.Char,
+  });
+
+  assertEquals(parser.parse("<a"), {
+    ok: false,
+    input: "a",
+    error: ErrorKind.Digit,
+  });
+});
+
+Deno.test("suffix", () => {
+  const parser = suffix(digit(), char(">"));
+
+  assertEquals(parser.parse("5>"), {
+    ok: true,
+    input: "",
+    output: "5",
+  });
+
+  assertEquals(parser.parse("5]"), {
+    ok: false,
+    input: "]",
+    error: ErrorKind.Char,
+  });
+
+  assertEquals(parser.parse("a>"), {
+    ok: false,
+    input: "a>",
+    error: ErrorKind.Digit,
   });
 });

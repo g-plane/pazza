@@ -123,3 +123,87 @@ export function serial<
     },
   };
 }
+
+interface PrefixParser<T, ET, EP, I extends Input>
+  extends IParser<T, ET | EP, I> {
+  prefix: IParser<unknown, EP, I>;
+  parser: IParser<T, ET, I>;
+}
+/**
+ * Execute the "prefix" parse first.
+ * If it succeeds, discard its result and execute the following normal parser.
+ *
+ * If any of both parsers fails, the whole parser will fail.
+ *
+ *     const parser = prefix(char("<"), digit());
+ *     parser.parse("<5").output === "5";
+ *     parser.parse("[5").ok === false;
+ *     parser.parse("<a").ok === false;
+ *
+ * @param prefix parser to parse prefix
+ * @param parser parser to parse normal stuff
+ */
+export function prefix<T, ET, EP, I extends Input>(
+  prefix: IParser<unknown, EP, I>,
+  parser: IParser<T, ET, I>,
+): PrefixParser<T, ET, EP, I> {
+  return {
+    prefix,
+    parser,
+    parse(input) {
+      const { prefix, parser } = this;
+
+      const preceded = prefix.parse(input);
+      if (!preceded.ok) {
+        return preceded;
+      }
+
+      return parser.parse(preceded.input);
+    },
+  };
+}
+
+interface SuffixParser<T, ET, ES, I extends Input>
+  extends IParser<T, ET | ES, I> {
+  parser: IParser<T, ET, I>;
+  suffix: IParser<unknown, ES, I>;
+}
+/**
+ * Execute the normal parser first.
+ * If it succeeds, execute the following "suffix" parser
+ * and discard the output of the "suffix" parser if succeeds.
+ *
+ * If any of both parsers fails, the whole parser will fail.
+ *
+ *     const parser = suffix(digit(), char(">"));
+ *     parser.parse("5>").output === "5";
+ *     parser.parse("5]").ok === false;
+ *     parser.parse("a>").ok === false;
+ *
+ * @param parser parser to parse normal stuff
+ * @param suffix parser to parse suffix
+ */
+export function suffix<T, ET, ES, I extends Input>(
+  parser: IParser<T, ET, I>,
+  suffix: IParser<unknown, ES, I>,
+): SuffixParser<T, ET, ES, I> {
+  return {
+    parser,
+    suffix,
+    parse(input) {
+      const { parser, suffix } = this;
+
+      const result = parser.parse(input);
+      if (!result.ok) {
+        return result;
+      }
+
+      const terminated = suffix.parse(result.input);
+      if (terminated.ok) {
+        return { ...terminated, output: result.output };
+      } else {
+        return terminated;
+      }
+    },
+  };
+}
