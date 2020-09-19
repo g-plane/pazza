@@ -3,7 +3,7 @@
 > Working in progress.
 
 Parser combinators library designed for Deno,
-and also works on browsers and Node.js.
+but also works on browsers and Node.js.
 
 ## License
 
