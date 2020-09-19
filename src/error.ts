@@ -24,6 +24,7 @@ export enum ErrorKind {
   CarriageReturnLineFeed,
   Linebreak,
   Tab,
+  Whitespace,
   EndOfFile,
   Many,
   Satisfy,
