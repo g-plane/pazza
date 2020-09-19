@@ -5,6 +5,13 @@ interface ByteParser<B extends number>
   extends IParser<B, ErrorKind.Byte, Uint8Array> {
   byte: B;
 }
+/**
+ * Parse a specified byte.
+ *
+ *     byte(10).parse(Uint8Array.of(10)).output === 10;
+ *
+ * @param byte 8-bit unsigned integer
+ */
 export function byte<B extends number>(byte: B): ByteParser<B> {
   return {
     byte,
@@ -27,6 +34,11 @@ export function byte<B extends number>(byte: B): ByteParser<B> {
   };
 }
 
+/**
+ * Parse any single byte.
+ *
+ *     anyByte().parse(Uint8Array.of(10)).output === 10;
+ */
 export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
   return {
     parse(input) {
@@ -50,6 +62,15 @@ export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
 interface SliceParser extends IParser<Uint8Array, ErrorKind.Slice, Uint8Array> {
   slice: Uint8Array;
 }
+/**
+ * Parse a specified slice of bytes.
+ *
+ *     const parser = slice(Uint8Array.of(13, 10));
+ *     parser.parse(Uint8Array.of(13, 10)).output; // ==> Uint8Array [13, 10]
+ *     parser.parse(Uint8Array.of(13, 13)).ok === false;
+ *
+ * @param slice slice of 8-bit unsigned integers
+ */
 export function slice(slice: Uint8Array): SliceParser {
   return {
     slice,

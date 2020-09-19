@@ -10,6 +10,25 @@ interface ManyParser<T, E, I extends Input>
   min: number;
   max: number;
 }
+/**
+ * Repeat them embedded parser with
+ * "m" times at minimum and "n" times at maximum.
+ *
+ * If repeat times is lower than minimum value,
+ * it will produce a parsing error.
+ * If repeat times reaches maximum value,
+ * it will stop parsing and return parsed output.
+ *
+ *     many(alpha(), 1, 2).parse("").ok === false;
+ *     many(alpha(), 1, 2).parse("a").output; // ==> ["a"]
+ *     many(alpha(), 1, 2).parse("ab").output; // ==> ["a", "b"]
+ *     many(alpha(), 1, 2).parse("abc").output; // ==> ["a", "b"]
+ *     many(alpha(), 1, 2).parse("abc").input === "c";
+ *
+ * @param parser embedded parser
+ * @param m minimum times (inclusive)
+ * @param n maximum times (inclusive)
+ */
 export function many<T, E, I extends Input>(
   parser: IParser<T, E, I>,
   m: number,
@@ -49,6 +68,16 @@ export function many<T, E, I extends Input>(
   };
 }
 
+/**
+ * Repeat them embedded parser any times, at least 0.
+ *
+ *     many0(alpha()).parse("").output; // ==> []
+ *     many0(alpha()).parse("a").output; // ==> ["a"]
+ *     many0(alpha()).parse("a1").output; // ==> ["a"]
+ *     many0(alpha()).parse("a1").input === "1";
+ *
+ * @param parser embedded parser
+ */
 export function many0<T, E, I extends Input>(
   parser: IParser<T, E, I>,
 ): IParser<T[], E, I> {
@@ -72,6 +101,16 @@ export function many0<T, E, I extends Input>(
   };
 }
 
+/**
+ * Repeat them embedded parser at least once.
+ *
+ *     many1(alpha()).parse("").ok === false;
+ *     many1(alpha()).parse("a").output; // ==> ["a"]
+ *     many1(alpha()).parse("a1").output; // ==> ["a"]
+ *     many1(alpha()).parse("a1").input === "1";
+ *
+ * @param parser embedded parser
+ */
 export function many1<T, E, I extends Input>(
   parser: IParser<T, E, I>,
 ): IParser<T[], E, I> {
@@ -104,6 +143,16 @@ interface ManyUntilParser<T, U, ET, EU, I extends Input>
   parser: IParser<T, ET, I>;
   end: IParser<U, EU, I>;
 }
+/**
+ * Repeat the embedded parser until the "end" parser succeeded.
+ *
+ *     const result = manyUntil(digit(), alpha()).parse("123abc");
+ *     result.input === "abc";
+ *     result.output; // ==> ["1", "2", "3"]
+ *
+ * @param parser embedded parser
+ * @param end end parser
+ */
 export function manyUntil<T, U, ET, EU, I extends Input>(
   parser: IParser<T, ET, I>,
   end: IParser<U, EU, I>,

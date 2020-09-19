@@ -2,7 +2,7 @@ import type { IParser, Input } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
 /**
- * Parse a single "space" character. It outputs a single "space" character.
+ * Parse a single "space" character.
  *
  *     space().parse(" ").output === " ";
  */
@@ -27,7 +27,7 @@ export function space(): IParser<" ", ErrorKind.Space, string> {
 }
 
 /**
- * Parse a single "carriage return" character. It outputs a "carriage return" character.
+ * Parse a single "carriage return" character.
  *
  *     cr().parse("\r").output === "\r";
  */
@@ -52,7 +52,7 @@ export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
 }
 
 /**
- * Parse a single "line feed" character. It outputs a "line feed" character.
+ * Parse a single "line feed" character.
  *
  *     lf().parse("\n").output === "\n";
  */
@@ -78,7 +78,6 @@ export function lf(): IParser<"\n", ErrorKind.LineFeed, string> {
 
 /**
  * Parse paired "carriage return - line feed" characters.
- * It outputs "carriage return - line feed" characters.
  *
  *     crlf().parse("\r\n").output === "\r\n";
  */
@@ -108,7 +107,6 @@ export function crlf(): IParser<
 
 /**
  * Parse linebreak, which can be "\n" or "\r\n".
- * It outputs linebreak.
  *
  *     linebreak().parse("\n").output === "\n";
  *     linebreak().parse("\r\n").output === "\r\n";
@@ -145,7 +143,7 @@ export function linebreak(): IParser<
 }
 
 /**
- * Parse a single "tab" character. It outputs a "tab" character.
+ * Parse a single "tab" character.
  *
  *     tab().parse("\t").output === "\t";
  */
@@ -230,7 +228,6 @@ const UNICODE_WHITESPACE = [
 
 /**
  * Parse a Unicode Whitespace character.
- * It outputs the parsed Unicode Whitespace character.
  *
  *     whitespace().parse("\v").output === "\v";
  */

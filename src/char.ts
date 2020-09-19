@@ -13,6 +13,18 @@ interface CharParser<C> extends IParser<C, ErrorKind.Char, string> {
   char: C;
   charCode: number;
 }
+/**
+ * Parse a specified character.
+ *
+ * When constructing the parser,
+ * if a non-single-character string passed,
+ * an error will be thrown.
+ *
+ *     char("a").parse("a").output === "a";
+ *     char("a").parse("b").ok === false;
+ *
+ * @param char character to be parsed
+ */
 export function char<C extends string>(char: C): CharParser<C> {
   ensureSingleCharacter(char);
 
@@ -38,6 +50,11 @@ export function char<C extends string>(char: C): CharParser<C> {
   };
 }
 
+/**
+ * Parse any single character.
+ *
+ *     anyChar().parse("a").output === "a";
+ */
 export function anyChar(): IParser<string, ErrorKind.AnyChar, string> {
   return {
     parse(input) {
@@ -62,6 +79,15 @@ interface OneOfCharsParser<S extends readonly string[]>
   extends IParser<S[number], ErrorKind.OneOfChars, string> {
   charCodes: number[];
 }
+/**
+ * Parse one of provided characters.
+ *
+ *     const parser = oneOfChars("a", "b");
+ *     parser.parse("a").output === "a";
+ *     parser.parse("c").ok === false;
+ *
+ * @param chars acceptable characters
+ */
 export function oneOfChars<S extends readonly string[]>(
   ...chars: S
 ): OneOfCharsParser<S> {
@@ -94,6 +120,16 @@ interface NoneOfCharsParser
   extends IParser<string, ErrorKind.NoneOfChars, string> {
   charCodes: number[];
 }
+/**
+ * Parse any character but not in provided characters.
+ *
+ *
+ *     const parser = noneOfChars("a", "b");
+ *     parser.parse("a").ok === false;
+ *     parser.parse("c").output === "c";
+ *
+ * @param chars characters to be excluded
+ */
 export function noneOfChars<S extends readonly string[]>(
   ...chars: S
 ): NoneOfCharsParser {
@@ -126,6 +162,17 @@ interface EscapedWithParser<V>
   controlCharCode: number;
   map: Map<number, V>;
 }
+/**
+ * Parse escaped characters and
+ * convert values according to provided "entries".
+ *
+ *     const parser = escapedWith("\\", [["n", "\n"], ["r", "\r"]]);
+ *     parser.parse("\\n").output === "\n";
+ *     parser.parse("\\b").ok === false;
+ *
+ * @param controlChar Control char, like "\\" in most programming languages.
+ * @param entries Entries map to look up escaping.
+ */
 export function escapedWith<V>(
   controlChar: string,
   entries: readonly (readonly [string, V])[],
@@ -171,6 +218,21 @@ interface EscapedByParser<V>
   controlCharCode: number;
   transformer: (char: string) => V;
 }
+/**
+ * Parse escaped characters by calling a provided transformer function
+ * to allow to customize escaping logic.
+ *
+ *     const parser = escapedBy("\\", (char) => {
+ *       if (char === "n") {
+ *         return "\n";
+ *       }
+ *     });
+ *     parser.parse("\\n").output === "\n";
+ *     parser.parse("\\t").ok === false;
+ *
+ * @param controlChar Control char, like "\\" in most programming languages.
+ * @param transformer Transformer function, with a single character as argument.
+ */
 export function escapedBy<V>(
   controlChar: string,
   transformer: (char: string) => V,
@@ -221,6 +283,15 @@ export function escapedBy<V>(
 interface StringParser<S> extends IParser<S, ErrorKind.String, string> {
   literal: S;
 }
+/**
+ * Parse a specified string.
+ *
+ *     const parser = string("ab");
+ *     parser.parse("ab").output === "ab";
+ *     parser.parse("ac").ok === false;
+ *
+ * @param literal string literal
+ */
 export function string<S extends string>(literal: S): StringParser<S> {
   return {
     literal,
@@ -245,6 +316,12 @@ export function string<S extends string>(literal: S): StringParser<S> {
 
 type OctalDigit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
 
+/**
+ * Parse an octal digit.
+ *
+ *     octal().parse("7").output === "7";
+ *     octal().parse("8").ok === false;
+ */
 export function octal(): IParser<OctalDigit, ErrorKind.Octal, string> {
   return {
     parse(input) {
@@ -268,6 +345,12 @@ export function octal(): IParser<OctalDigit, ErrorKind.Octal, string> {
 
 type Digit = OctalDigit | "8" | "9";
 
+/**
+ * Parse a digit.
+ *
+ *     digit().parse("9").output === "9";
+ *     digit().parse("a").ok === false;
+ */
 export function digit(): IParser<Digit, ErrorKind.Digit, string> {
   return {
     parse(input) {
@@ -313,6 +396,17 @@ interface HexParser extends
   > {
   hexCase: HexCase;
 }
+/**
+ * Parse a hexadecimal character.
+ *
+ *     hex().parse("5").output === "5";
+ *     hex().parse("a").output === "a";
+ *     hex().parse("A").output === "A";
+ *     hex("upper").parse("a").ok === false;
+ *     hex("lower").parse("A").ok === false;
+ *
+ * @param hexCase Hexadecimal case. Default is "both".
+ */
 export function hex(hexCase: HexCase = "both"): HexParser {
   return {
     hexCase,
@@ -448,6 +542,12 @@ type UpperAlpha =
   | "Y"
   | "Z";
 
+/**
+ * Parse a alphabet character.
+ *
+ *     alpha().parse("m").output === "m";
+ *     alpha().parse("M").output === "M";
+ */
 export function alpha(): IParser<
   LowerAlpha | UpperAlpha,
   ErrorKind.Alphabet,
@@ -475,6 +575,12 @@ export function alpha(): IParser<
   };
 }
 
+/**
+ * Parse a lowercase alphabet character.
+ *
+ *     lower().parse("m").output === "m";
+ *     lower().parse("M").ok === false;
+ */
 export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
   return {
     parse(input) {
@@ -498,6 +604,12 @@ export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
   };
 }
 
+/**
+ * Parse a uppercase alphabet character.
+ *
+ *     upper().parse("m").ok === false;
+ *     upper().parse("M").output === "M";
+ */
 export function upper(): IParser<UpperAlpha, ErrorKind.UpperAlphabet, string> {
   return {
     parse(input) {
