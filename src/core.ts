@@ -1,6 +1,6 @@
 export type Input = string | Uint8Array;
 
-export type Result<I extends Input, Output, Err = string> =
+export type Result<I extends Input, Output, Err = unknown> =
   | { ok: true; input: I; output: Output }
   | { ok: false; input: I; error: Err };
 
