@@ -1,4 +1,3 @@
-import type { _format } from "https://deno.land/std@0.69.0/testing/asserts.ts";
 import type { IParser, Input, Result } from "./core.ts";
 
 export function or<L, R, EL, ER, I extends Input>(

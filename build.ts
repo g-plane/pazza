@@ -1,5 +1,5 @@
-import { copy, emptyDir } from "https://deno.land/std@0.69.0/fs/mod.ts";
-import * as path from "https://deno.land/std@0.69.0/path/mod.ts";
+import { copy, emptyDir } from "https://deno.land/std@0.70.0/fs/mod.ts";
+import * as path from "https://deno.land/std@0.70.0/path/mod.ts";
 
 await emptyDir("dist");
 await emptyDir("dist/es");

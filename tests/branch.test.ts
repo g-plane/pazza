@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.69.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
 import { pass, fail } from "./_.ts";
 import { or, choice, digit, alpha, map, ErrorKind } from "../mod.ts";
 
