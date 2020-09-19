@@ -27,5 +27,7 @@ export enum ErrorKind {
   Whitespace,
   EndOfFile,
   Many,
+  SepBy,
+  SepEndBy,
   Satisfy,
 }

@@ -5,6 +5,7 @@ import {
   many1,
   manyUntil,
   sepBy,
+  sepBy1,
   digit,
   char,
   ErrorKind,
@@ -131,11 +132,76 @@ Deno.test("manyUntil", () => {
 });
 
 Deno.test("sepBy", () => {
-  const parser = sepBy(char(","), digit());
+  assertEquals(sepBy(char(","), digit()).parse("a"), {
+    ok: true,
+    input: "a",
+    output: [],
+  });
+
+  assertEquals(sepBy(char(","), digit()).parse("1a"), {
+    ok: true,
+    input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(sepBy(char(","), digit()).parse("1,a"), {
+    ok: true,
+    input: ",a",
+    output: ["1"],
+  });
+
+  assertEquals(sepBy(char(","), digit()).parse("1,2a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepBy(char(","), digit(), 2).parse("1,2a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepBy(char(","), digit(), 2).parse("1,2,3a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2", "3"],
+  });
+
+  assertEquals(sepBy(char(","), digit(), 2).parse("1a"), {
+    ok: false,
+    input: "a",
+    error: {
+      kind: ErrorKind.SepBy,
+      output: ["1"],
+    },
+  });
+
+  assertEquals(sepBy(char(","), digit(), 1, 2).parse("1,2a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepBy(char(","), digit(), 1, 2).parse("1,2,3a"), {
+    ok: true,
+    input: ",3a",
+    output: ["1", "2"],
+  });
+});
+
+Deno.test("sepBy1", () => {
+  const parser = sepBy1(char(","), digit());
 
   assertEquals(parser.parse("1a"), {
     ok: true,
     input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(parser.parse("1,a"), {
+    ok: true,
+    input: ",a",
     output: ["1"],
   });
 
@@ -145,5 +211,9 @@ Deno.test("sepBy", () => {
     output: ["1", "2", "3"],
   });
 
-  assertEquals(parser.parse("a"), digit().parse("a"));
+  assertEquals(parser.parse("a"), {
+    ok: false,
+    input: "a",
+    error: ErrorKind.Digit,
+  });
 });

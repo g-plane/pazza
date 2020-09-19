@@ -1,12 +1,13 @@
 import type { IParser, Input } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
-interface ManyMinError<T> {
-  kind: ErrorKind.Many;
+interface MinCountError<T, E extends ErrorKind> {
+  kind: E;
   output: T[];
 }
+
 interface ManyParser<T, E, I extends Input>
-  extends IParser<T[], E | ManyMinError<T>, I> {
+  extends IParser<T[], E | MinCountError<T, ErrorKind.Many>, I> {
   min: number;
   max: number;
 }
@@ -186,13 +187,116 @@ export function manyUntil<T, U, ET, EU, I extends Input>(
   };
 }
 
+interface SepByParser<T, S, ET, ES, I extends Input>
+  extends IParser<T[], ET | ES | MinCountError<T, ErrorKind.SepBy>, I> {
+  min: number;
+  max: number;
+  parser: IParser<T, ET, I>;
+  separator: IParser<S, ES, I>;
+}
+/**
+ * Execute the embedded parser in specified times,
+ * with another parser as separator,
+ * then produce a list of values.
+ *
+ * If separator is trailing,
+ * it will be treated as the rest of input without parsing.
+ *
+ *     sepBy(char(","), digit()).parse("1,2").output; // ==> ["1", "2"]
+ *     sepBy(char(","), digit()).parse("1,2,").output; // ==> ["1", "2"]
+ *     sepBy(char(","), digit()).parse("1,2,").input === ",";
+ *     sepBy(char(","), digit(), 1).parse("").ok === false;
+ *     sepBy(char(","), digit(), 0, 1).parse("1,2").output; // ==> ["1"]
+ *     sepBy(char(","), digit(), 0, 1).parse("1,2").input === ",2";
+ *
+ * @param separator parser to parse as separator
+ * @param parser embedded parser
+ * @param m minimum times (inclusive), default is `0`
+ * @param n maximum times (inclusive), default is `Infinity`
+ */
 export function sepBy<T, S, ET, ES, I extends Input>(
   separator: IParser<S, ES, I>,
   parser: IParser<T, ET, I>,
-): IParser<T[], ET | ES, I> {
+  m = 0,
+  n = Infinity,
+): SepByParser<T, S, ET, ES, I> {
   return {
+    min: Math.min(m, n),
+    max: Math.max(m, n),
+    parser,
+    separator,
     parse(input) {
-      const items: T[] = [];
+      const { min, max, parser, separator } = this;
+      const output: T[] = [];
+
+      let count = 0;
+      let result = parser.parse(input);
+      while (result.ok && count < max) {
+        output.push(result.output);
+        input = result.input;
+        count += 1;
+
+        const sep = separator.parse(input);
+        if (!sep.ok) {
+          if (count < min) {
+            return {
+              ok: false,
+              input: sep.input,
+              error: {
+                kind: ErrorKind.SepBy,
+                output,
+              },
+            };
+          } else {
+            return {
+              ok: true,
+              input,
+              output,
+            };
+          }
+        }
+
+        result = parser.parse(sep.input);
+      }
+
+      return {
+        ok: true,
+        input,
+        output,
+      };
+    },
+  };
+}
+
+interface SepBy1Parser<T, S, ET, ES, I extends Input>
+  extends IParser<T[], ET | ES, I> {
+  parser: IParser<T, ET, I>;
+  separator: IParser<S, ES, I>;
+}
+/**
+ * Execute the embedded parser at least once with another parser as separator,
+ * then produce a list of values.
+ *
+ * If separator is trailing,
+ * it will be treated as the rest of input without parsing.
+ *
+ *     sepBy1(char(","), digit()).parse("1,2").output; // ==> ["1", "2"]
+ *     sepBy1(char(","), digit()).parse("1,2,").output; // ==> ["1", "2"]
+ *     sepBy1(char(","), digit()).parse("1,2,").input === ",";
+ *     sepBy1(char(","), digit()).parse("").ok === false;
+ *
+ * @param separator parser to parse as separator
+ * @param parser embedded parser
+ */
+export function sepBy1<T, S, ET, ES, I extends Input>(
+  separator: IParser<S, ES, I>,
+  parser: IParser<T, ET, I>,
+): SepBy1Parser<T, S, ET, ES, I> {
+  return {
+    parser,
+    separator,
+    parse(input) {
+      const output: T[] = [];
 
       let result = parser.parse(input);
       if (!result.ok) {
@@ -200,7 +304,7 @@ export function sepBy<T, S, ET, ES, I extends Input>(
       }
 
       while (result.ok) {
-        items.push(result.output);
+        output.push(result.output);
         input = result.input;
 
         const sep = separator.parse(input);
@@ -208,14 +312,14 @@ export function sepBy<T, S, ET, ES, I extends Input>(
           return {
             ok: true,
             input: sep.input,
-            output: items,
+            output,
           };
         }
 
         result = parser.parse(sep.input);
       }
 
-      return result;
+      return { ok: true, input, output };
     },
   };
 }
