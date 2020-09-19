@@ -113,13 +113,13 @@ Deno.test("manyUntil", () => {
 
   assertEquals(parser.parse("."), {
     ok: true,
-    input: "",
+    input: ".",
     output: [],
   });
 
   assertEquals(parser.parse("123.abc"), {
     ok: true,
-    input: "abc",
+    input: ".abc",
     output: ["1", "2", "3"],
   });
 

@@ -118,7 +118,11 @@ export function manyUntil<T, U, ET, EU, I extends Input>(
       while (true) {
         const endResult = end.parse(input);
         if (endResult.ok) {
-          return { ...endResult, output };
+          return {
+            ok: true,
+            input,
+            output,
+          };
         }
 
         const result = parser.parse(input);
