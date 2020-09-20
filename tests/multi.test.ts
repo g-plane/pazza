@@ -6,6 +6,8 @@ import {
   manyUntil,
   sepBy,
   sepBy1,
+  sepEndBy,
+  sepEndBy1,
   digit,
   char,
   ErrorKind,
@@ -214,6 +216,132 @@ Deno.test("sepBy1", () => {
   assertEquals(parser.parse("a"), {
     ok: false,
     input: "a",
+    error: ErrorKind.Digit,
+  });
+});
+
+Deno.test("sepEndBy", () => {
+  assertEquals(sepEndBy(char(","), digit()).parse("a"), {
+    ok: true,
+    input: "a",
+    output: [],
+  });
+
+  assertEquals(sepEndBy(char(","), digit()).parse(",a"), {
+    ok: true,
+    input: ",a",
+    output: [],
+  });
+
+  assertEquals(sepEndBy(char(","), digit()).parse("1a"), {
+    ok: true,
+    input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit()).parse("1,a"), {
+    ok: true,
+    input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit()).parse("1,2a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,3a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2", "3"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,3,a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2", "3"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1a"), {
+    ok: false,
+    input: "a",
+    error: {
+      kind: ErrorKind.SepEndBy,
+      output: ["1"],
+    },
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,a"), {
+    ok: false,
+    input: "a",
+    error: {
+      kind: ErrorKind.SepEndBy,
+      output: ["1"],
+    },
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 1, 2).parse("1,2,a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2"],
+  });
+
+  assertEquals(sepEndBy(char(","), digit(), 1, 2).parse("1,2,3a"), {
+    ok: true,
+    input: "3a",
+    output: ["1", "2"],
+  });
+});
+
+Deno.test("sepEndBy1", () => {
+  const parser = sepEndBy1(char(","), digit());
+
+  assertEquals(parser.parse("1a"), {
+    ok: true,
+    input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(parser.parse("1,a"), {
+    ok: true,
+    input: "a",
+    output: ["1"],
+  });
+
+  assertEquals(parser.parse("1,2,3a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2", "3"],
+  });
+
+  assertEquals(parser.parse("1,2,3,a"), {
+    ok: true,
+    input: "a",
+    output: ["1", "2", "3"],
+  });
+
+  assertEquals(parser.parse("a"), {
+    ok: false,
+    input: "a",
+    error: ErrorKind.Digit,
+  });
+
+  assertEquals(parser.parse(",a"), {
+    ok: false,
+    input: ",a",
     error: ErrorKind.Digit,
   });
 });
