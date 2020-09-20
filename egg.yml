@@ -6,7 +6,6 @@ unstable: true
 checkAll: true
 repository: 'https://github.com/g-plane/pazza'
 files:
-  - ./examples/**/*
   - ./src/**/*
   - ./LICENSE
   - ./mod.ts
