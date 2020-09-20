@@ -543,7 +543,7 @@ type UpperAlpha =
   | "Z";
 
 /**
- * Parse a alphabet character.
+ * Parse an alphabet character.
  *
  *     alpha().parse("m").output === "m";
  *     alpha().parse("M").output === "M";
@@ -605,7 +605,7 @@ export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
 }
 
 /**
- * Parse a uppercase alphabet character.
+ * Parse an uppercase alphabet character.
  *
  *     upper().parse("m").ok === false;
  *     upper().parse("M").output === "M";
