@@ -39,7 +39,15 @@ npm i pazza
 Then, in your project:
 
 ```javascript
-const { /**/ } = require("pazza")
+const { /**/ } = require("pazza");
+```
+
+### Browsers
+
+Suppose your target browsers support ES Module:
+
+```javascript
+import { /**/ } from "https://cdn.jsdelivr.net/npm/pazza/dist/es/index.js";
 ```
 
 ## Documentation
