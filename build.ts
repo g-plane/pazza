@@ -8,7 +8,8 @@ await emptyDir("dist/cjs");
 const [errors, emitted] = await Deno.compile("./mod.ts", undefined, {
   declaration: true,
   sourceMap: true,
-  lib: ["es2017"],
+  lib: ["es2016"],
+  target: "es2016",
 });
 
 const nonLibErrors = errors?.filter((error) => {
@@ -56,7 +57,8 @@ await Deno.writeTextFile(
 const [, emittedCJS] = await Deno.compile("./mod.ts", undefined, {
   module: "commonjs",
   sourceMap: true,
-  lib: ["es2017"],
+  lib: ["es2016"],
+  target: "es2016",
 });
 await Promise.all(
   Object.entries(emittedCJS).map(async ([url, code]) => {
