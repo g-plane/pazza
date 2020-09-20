@@ -238,24 +238,24 @@ export function sepBy<T, S, ET, ES, I extends Input>(
 
         const sep = separator.parse(input);
         if (!sep.ok) {
-          if (count < min) {
-            return {
-              ok: false,
-              input: sep.input,
-              error: {
-                kind: ErrorKind.SepBy,
-                output,
-              },
-            };
-          } else {
-            return { ok: true, input, output };
-          }
+          break;
         }
 
         result = parser.parse(sep.input);
       }
 
-      return { ok: true, input, output };
+      if (count < min) {
+        return {
+          ok: false,
+          input,
+          error: {
+            kind: ErrorKind.SepBy,
+            output,
+          },
+        };
+      } else {
+        return { ok: true, input, output };
+      }
     },
   };
 }
@@ -301,11 +301,7 @@ export function sepBy1<T, S, ET, ES, I extends Input>(
 
         const sep = separator.parse(input);
         if (!sep.ok) {
-          return {
-            ok: true,
-            input: sep.input,
-            output,
-          };
+          break;
         }
 
         result = parser.parse(sep.input);

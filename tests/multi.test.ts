@@ -179,6 +179,15 @@ Deno.test("sepBy", () => {
     },
   });
 
+  assertEquals(sepBy(char(","), digit(), 2).parse("1,a"), {
+    ok: false,
+    input: ",a",
+    error: {
+      kind: ErrorKind.SepBy,
+      output: ["1"],
+    },
+  });
+
   assertEquals(sepBy(char(","), digit(), 1, 2).parse("1,2a"), {
     ok: true,
     input: "a",
