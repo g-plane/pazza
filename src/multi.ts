@@ -248,22 +248,14 @@ export function sepBy<T, S, ET, ES, I extends Input>(
               },
             };
           } else {
-            return {
-              ok: true,
-              input,
-              output,
-            };
+            return { ok: true, input, output };
           }
         }
 
         result = parser.parse(sep.input);
       }
 
-      return {
-        ok: true,
-        input,
-        output,
-      };
+      return { ok: true, input, output };
     },
   };
 }
