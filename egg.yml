@@ -1,0 +1,11 @@
+name: pazza
+description: Parser combinators library designed for Deno.
+unstable: true
+checkTest: true
+repository: https://github.com/g-plane/pazza
+files:
+  - ./examples/**/*
+  - ./src/**/*
+  - ./LICENSE
+  - ./mod.ts
+  - ./README.md
