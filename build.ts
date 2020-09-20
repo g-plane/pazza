@@ -8,8 +8,8 @@ await emptyDir("dist/cjs");
 const [errors, emitted] = await Deno.compile("./mod.ts", undefined, {
   declaration: true,
   sourceMap: true,
-  lib: ["es2016"],
-  target: "es2016",
+  lib: ["es2017"],
+  target: "es2017",
 });
 
 const nonLibErrors = errors?.filter((error) => {
@@ -25,7 +25,12 @@ const cwd = Deno.cwd();
 await Promise.all(
   Object.entries(emitted).map(async ([url, code]) => {
     if (url.includes(`${cwd}/mod`)) {
-      code = code.replaceAll("src/", "").replaceAll(".ts", "");
+      if (url.endsWith(".js")) {
+        code = code.replaceAll(".ts", ".js");
+      } else {
+        code = code.replaceAll(".ts", "");
+      }
+      code = code.replaceAll("src/", "");
       const path = url
         .replace("file://", "")
         .replace(`${cwd}/mod`, `${cwd}/dist/es/index`);
@@ -33,7 +38,11 @@ await Promise.all(
       return;
     }
 
-    code = code.replaceAll(".ts", "");
+    if (url.endsWith(".js")) {
+      code = code.replaceAll(".ts", ".js");
+    } else {
+      code = code.replaceAll(".ts", "");
+    }
     const path = url
       .replace("file://", "")
       .replace(`${cwd}/src`, `${cwd}/dist/es`);
@@ -57,8 +66,8 @@ await Deno.writeTextFile(
 const [, emittedCJS] = await Deno.compile("./mod.ts", undefined, {
   module: "commonjs",
   sourceMap: true,
-  lib: ["es2016"],
-  target: "es2016",
+  lib: ["es2017"],
+  target: "es2017",
 });
 await Promise.all(
   Object.entries(emittedCJS).map(async ([url, code]) => {
