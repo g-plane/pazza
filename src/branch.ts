@@ -47,6 +47,8 @@ type ChoiceResult<
 
 /**
  * Attempt to run each parser of a list of parsers.
+ * Once a parser succeeds, return its result.
+ * If no parsers succeed, return last result.
  *
  *     const parser = choice(char("-"), char("+"), char("."));
  *     parser.parse("-").output === "-";
@@ -54,13 +56,15 @@ type ChoiceResult<
  *     parser.parse(".").output === ".";
  *     parser.parse("").ok === false;
  *
- * @param parsers
+ * @param parsers Alternative parsers. Order is insensitive.
  */
 export function choice<P extends readonly IParser<unknown, unknown, string>[]>(
   ...parsers: P
 ): ChoiceParser<string, P>;
 /**
  * Attempt to run each parser of a list of parsers.
+ * Once a parser succeeds, return its result.
+ * If no parsers succeed, return last result.
  *
  *     const parser = choice(byte(1), byte(2), byte(3));
  *     parser.parse(Uint8Array.of(1)).output === 1;
