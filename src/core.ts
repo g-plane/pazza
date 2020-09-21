@@ -11,3 +11,10 @@ export interface IParser<
 > {
   parse(input: I): Result<I, Output, Err>;
 }
+
+export type ParserInput<P extends IParser<unknown, unknown, Input>> = P extends
+  IParser<infer _, infer _, infer I> ? I : never;
+export type ParserOutput<P extends IParser<unknown, unknown, Input>> = P extends
+  IParser<infer O, infer _, Input> ? O : never;
+export type ParserError<P extends IParser<unknown, unknown, Input>> = P extends
+  IParser<infer _, infer E, Input> ? E : never;
