@@ -8,12 +8,14 @@ Deno.test("byte", () => {
     ok: true,
     input: bytes.subarray(1),
     output: 13,
+    context: undefined,
   });
 
   assertEquals(byte(10).parse(bytes), {
     ok: false,
     input: bytes,
     error: ErrorKind.Byte,
+    context: undefined,
   });
 });
 
@@ -22,12 +24,14 @@ Deno.test("anyByte", () => {
     ok: true,
     input: Uint8Array.of(10),
     output: 13,
+    context: undefined,
   });
 
   assertEquals(anyByte().parse(Uint8Array.of()), {
     ok: false,
     input: Uint8Array.of(),
     error: ErrorKind.AnyByte,
+    context: undefined,
   });
 });
 
@@ -38,11 +42,13 @@ Deno.test("slice", () => {
     ok: true,
     input: bytes.subarray(2),
     output: bytes.subarray(0, 2),
+    context: undefined,
   });
 
   assertEquals(slice(Uint8Array.of(64, 65)).parse(bytes), {
     ok: false,
     input: bytes,
     error: ErrorKind.Slice,
+    context: undefined,
   });
 });

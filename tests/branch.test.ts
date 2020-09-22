@@ -7,24 +7,28 @@ Deno.test("or", () => {
     ok: true,
     input: "",
     output: 1,
+    context: undefined,
   });
 
   assertEquals(or(pass(1), fail()).parse(""), {
     ok: true,
     input: "",
     output: 1,
+    context: undefined,
   });
 
   assertEquals(or(fail(), pass(2)).parse(""), {
     ok: true,
     input: "",
     output: 2,
+    context: undefined,
   });
 
   assertEquals(or(fail(), fail()).parse(""), {
     ok: false,
     input: "",
     error: "Fake parsing error.",
+    context: undefined,
   });
 });
 
@@ -35,23 +39,27 @@ Deno.test("choice", () => {
     ok: true,
     input: "a",
     output: "1",
+    context: undefined,
   });
 
   assertEquals(parser.parse("a1"), {
     ok: true,
     input: "1",
     output: "a",
+    context: undefined,
   });
 
   assertEquals(parser.parse("-1a"), {
     ok: false,
     input: "-1a",
     error: ErrorKind.Alphabet,
+    context: undefined,
   });
 
   assertEquals(choice(alpha(), map(digit(), Number.parseInt)).parse("5"), {
     ok: true,
     input: "",
     output: 5,
+    context: undefined,
   });
 });

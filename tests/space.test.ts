@@ -18,12 +18,14 @@ Deno.test("space", () => {
     ok: true,
     input: " ",
     output: " ",
+    context: undefined,
   });
 
   assertEquals(space().parse("\n"), {
     ok: false,
     input: "\n",
     error: ErrorKind.Space,
+    context: undefined,
   });
 });
 
@@ -32,12 +34,14 @@ Deno.test("cr", () => {
     ok: true,
     input: "abc",
     output: "\r",
+    context: undefined,
   });
 
   assertEquals(cr().parse("\nabc"), {
     ok: false,
     input: "\nabc",
     error: ErrorKind.CarriageReturn,
+    context: undefined,
   });
 });
 
@@ -46,12 +50,14 @@ Deno.test("lf", () => {
     ok: true,
     input: "abc",
     output: "\n",
+    context: undefined,
   });
 
   assertEquals(lf().parse("\rabc"), {
     ok: false,
     input: "\rabc",
     error: ErrorKind.LineFeed,
+    context: undefined,
   });
 });
 
@@ -60,12 +66,14 @@ Deno.test("crlf", () => {
     ok: true,
     input: "abc",
     output: "\r\n",
+    context: undefined,
   });
 
   assertEquals(crlf().parse("\nabc"), {
     ok: false,
     input: "\nabc",
     error: ErrorKind.CarriageReturnLineFeed,
+    context: undefined,
   });
 });
 
@@ -74,18 +82,21 @@ Deno.test("linebreak", () => {
     ok: true,
     input: "abc",
     output: "\r\n",
+    context: undefined,
   });
 
   assertEquals(linebreak().parse("\nabc"), {
     ok: true,
     input: "abc",
     output: "\n",
+    context: undefined,
   });
 
   assertEquals(linebreak().parse("\rabc"), {
     ok: false,
     input: "\rabc",
     error: ErrorKind.Linebreak,
+    context: undefined,
   });
 });
 
@@ -94,12 +105,14 @@ Deno.test("tab", () => {
     ok: true,
     input: "abc",
     output: "\t",
+    context: undefined,
   });
 
   assertEquals(tab().parse(" abc"), {
     ok: false,
     input: " abc",
     error: ErrorKind.Tab,
+    context: undefined,
   });
 });
 
@@ -137,6 +150,7 @@ Deno.test("whitespace", () => {
       ok: true,
       input: "",
       output: char,
+      context: undefined,
     });
   });
 
@@ -144,6 +158,7 @@ Deno.test("whitespace", () => {
     ok: false,
     input: "\uFEFF",
     error: ErrorKind.Whitespace,
+    context: undefined,
   });
 });
 
@@ -153,6 +168,7 @@ Deno.test("trim", () => {
     ok: true,
     input: "bc",
     output: "a",
+    context: undefined,
   });
 });
 
@@ -161,23 +177,27 @@ Deno.test("eof", () => {
     ok: true,
     input: "",
     output: undefined,
+    context: undefined,
   });
 
   assertEquals(eof().parse("t"), {
     ok: false,
     input: "t",
     error: ErrorKind.EndOfFile,
+    context: undefined,
   });
 
   assertEquals(eof().parse(Uint8Array.of()), {
     ok: true,
     input: Uint8Array.of(),
     output: undefined,
+    context: undefined,
   });
 
   assertEquals(eof().parse(Uint8Array.of(65)), {
     ok: false,
     input: Uint8Array.of(65),
     error: ErrorKind.EndOfFile,
+    context: undefined,
   });
 });

@@ -9,5 +9,6 @@ Deno.test("lazy", () => {
     ok: true,
     input: "",
     output: "kumiko",
+    context: undefined,
   });
 });

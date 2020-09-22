@@ -16,8 +16,8 @@ export function map<T, U, E, I extends Input>(
   fn: (arg: T) => U,
 ): IParser<U, E, I> {
   return {
-    parse(input) {
-      const result = parser.parse(input);
+    parse(input, context) {
+      const result = parser.parse(input, context);
       if (result.ok) {
         return { ...result, output: fn(result.output) };
       } else {
@@ -42,8 +42,8 @@ export function mapErr<T, E1, E2, I extends Input>(
   fn: (error: E1) => E2,
 ): IParser<T, E2, I> {
   return {
-    parse(input) {
-      const result = parser.parse(input);
+    parse(input, context) {
+      const result = parser.parse(input, context);
       if (result.ok) {
         return result;
       } else {
@@ -68,8 +68,8 @@ export function optional<T, I extends Input>(
   parser: IParser<T, unknown, I>,
 ): IParser<T | null, never, I> {
   return {
-    parse(input) {
-      const result = parser.parse(input);
+    parse(input, context) {
+      const result = parser.parse(input, context);
       if (result.ok) {
         return result;
       } else {
@@ -77,6 +77,7 @@ export function optional<T, I extends Input>(
           ok: true,
           input,
           output: null,
+          context: result.context,
         };
       }
     },
@@ -116,7 +117,7 @@ export function satisfy(
 } {
   return {
     predicate,
-    parse(input) {
+    parse<C>(input: Input, context?: C) {
       const first = input[0];
 
       if (this.predicate(first)) {
@@ -124,12 +125,14 @@ export function satisfy(
           ok: true,
           input: input.slice(1),
           output: first,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Satisfy,
+          context,
         };
       }
     },

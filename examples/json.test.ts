@@ -32,5 +32,6 @@ Deno.test("jsonParser", () => {
         "c": null,
       },
     ],
+    context: undefined,
   });
 });

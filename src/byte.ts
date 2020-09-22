@@ -1,4 +1,4 @@
-import type { IParser } from "./core.ts";
+import type { Input, IParser, Result } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
 interface ByteParser<B extends number>
@@ -16,19 +16,21 @@ interface ByteParser<B extends number>
 export function byte<B extends number>(byte: B): ByteParser<B> {
   return {
     byte,
-    parse(input) {
+    parse(input, context) {
       const { byte } = this;
       if (input[0] === byte) {
         return {
           ok: true,
           input: input.subarray(1),
           output: byte,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Byte,
+          context,
         };
       }
     },
@@ -42,18 +44,20 @@ export function byte<B extends number>(byte: B): ByteParser<B> {
  */
 export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.length === 0) {
         return {
           ok: false,
           input,
           error: ErrorKind.AnyByte,
+          context,
         };
       } else {
         return {
           ok: true,
           input: input.subarray(1),
           output: input[0],
+          context,
         };
       }
     },
@@ -75,7 +79,7 @@ interface SliceParser extends IParser<Uint8Array, ErrorKind.Slice, Uint8Array> {
 export function slice(slice: Uint8Array): SliceParser {
   return {
     slice,
-    parse(input) {
+    parse(input, context) {
       const { slice } = this;
       const max = slice.length;
       for (let i = 0; i < max; i += 1) {
@@ -84,6 +88,7 @@ export function slice(slice: Uint8Array): SliceParser {
             ok: false,
             input,
             error: ErrorKind.Slice,
+            context,
           };
         }
       }
@@ -92,6 +97,7 @@ export function slice(slice: Uint8Array): SliceParser {
         ok: true,
         input: input.slice(max),
         output: slice,
+        context,
       };
     },
   };

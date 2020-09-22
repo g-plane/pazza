@@ -31,19 +31,21 @@ export function char<C extends string>(char: C): CharParser<C> {
   return {
     char,
     charCode: char.charCodeAt(0),
-    parse(input) {
+    parse(input, context) {
       const { char, charCode } = this;
       if (input.charCodeAt(0) === charCode) {
         return {
           ok: true,
           input: input.slice(1),
           output: char,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Char,
+          context,
         };
       }
     },
@@ -57,18 +59,20 @@ export function char<C extends string>(char: C): CharParser<C> {
  */
 export function anyChar(): IParser<string, ErrorKind.AnyChar, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input === "") {
         return {
           ok: false,
           input,
           error: ErrorKind.AnyChar,
+          context,
         };
       } else {
         return {
           ok: true,
           input: input.slice(1),
           output: input.charAt(0),
+          context,
         };
       }
     },
@@ -95,7 +99,7 @@ export function oneOfChars<S extends readonly string[]>(
 
   return {
     charCodes: chars.map((char) => char.charCodeAt(0)),
-    parse(input) {
+    parse(input, context) {
       const { charCodes } = this;
       const firstCharCode = input.charCodeAt(0);
 
@@ -104,12 +108,14 @@ export function oneOfChars<S extends readonly string[]>(
           ok: true,
           input: input.slice(1),
           output: input[0],
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.OneOfChars,
+          context,
         };
       }
     },
@@ -137,7 +143,7 @@ export function noneOfChars<S extends readonly string[]>(
 
   return {
     charCodes: chars.map((char) => char.charCodeAt(0)),
-    parse(input) {
+    parse(input, context) {
       const { charCodes } = this;
       const firstCharCode = input.charCodeAt(0);
       if (charCodes.includes(firstCharCode)) {
@@ -145,12 +151,14 @@ export function noneOfChars<S extends readonly string[]>(
           ok: false,
           input,
           error: ErrorKind.NoneOfChars,
+          context,
         };
       } else {
         return {
           ok: true,
           input: input.slice(1),
           output: input[0],
+          context,
         };
       }
     },
@@ -183,7 +191,7 @@ export function escapedWith<V>(
   return {
     controlCharCode: controlChar.charCodeAt(0),
     map: new Map(entries.map(([key, value]) => [key.charCodeAt(0), value])),
-    parse(input) {
+    parse(input, context) {
       const { controlCharCode, map } = this;
       const firstCharCode = input.charCodeAt(0);
 
@@ -194,12 +202,14 @@ export function escapedWith<V>(
             ok: true,
             input: input.slice(2),
             output: value,
+            context,
           };
         } else {
           return {
             ok: false,
             input,
             error: ErrorKind.EscapedWith,
+            context,
           };
         }
       } else {
@@ -207,6 +217,7 @@ export function escapedWith<V>(
           ok: false,
           input,
           error: ErrorKind.EscapedWith,
+          context,
         };
       }
     },
@@ -242,12 +253,13 @@ export function escapedBy<V>(
   return {
     controlCharCode: controlChar.charCodeAt(0),
     transformer,
-    parse(input) {
+    parse(input, context) {
       if (input.length < 2) {
         return {
           ok: false,
           input,
           error: ErrorKind.EscapedBy,
+          context,
         };
       }
 
@@ -261,12 +273,14 @@ export function escapedBy<V>(
             ok: true,
             input: input.slice(2),
             output: output as NonNullable<V>,
+            context,
           };
         } else {
           return {
             ok: false,
             input,
             error: ErrorKind.EscapedBy,
+            context,
           };
         }
       } else {
@@ -274,6 +288,7 @@ export function escapedBy<V>(
           ok: false,
           input,
           error: ErrorKind.EscapedBy,
+          context,
         };
       }
     },
@@ -295,19 +310,21 @@ interface StringParser<S> extends IParser<S, ErrorKind.String, string> {
 export function string<S extends string>(literal: S): StringParser<S> {
   return {
     literal,
-    parse(input) {
+    parse(input, context) {
       const { literal } = this;
       if (input.slice(0, literal.length) === literal) {
         return {
           ok: true,
           input: input.slice(literal.length),
           output: literal,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.String,
+          context,
         };
       }
     },
@@ -324,19 +341,21 @@ type OctalDigit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
  */
 export function octal(): IParser<OctalDigit, ErrorKind.Octal, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
       if (charCode >= 48 && charCode <= 55) {
         return {
           ok: true,
           input: input.slice(1),
           output: input[0] as OctalDigit,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Octal,
+          context,
         };
       }
     },
@@ -353,19 +372,21 @@ type Digit = OctalDigit | "8" | "9";
  */
 export function digit(): IParser<Digit, ErrorKind.Digit, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
       if (charCode >= 48 && charCode <= 57) {
         return {
           ok: true,
           input: input.slice(1),
           output: input[0] as Digit,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Digit,
+          context,
         };
       }
     },
@@ -410,7 +431,7 @@ interface HexParser extends
 export function hex(hexCase: HexCase = "both"): HexParser {
   return {
     hexCase,
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
 
       if (charCode >= 48 && charCode <= 57) {
@@ -418,6 +439,7 @@ export function hex(hexCase: HexCase = "both"): HexParser {
           ok: true,
           input: input.slice(1),
           output: input[0] as Digit,
+          context,
         };
       }
 
@@ -428,18 +450,21 @@ export function hex(hexCase: HexCase = "both"): HexParser {
             ok: true,
             input: input.slice(1),
             output: input[0] as Hexadecimal,
+            context,
           };
         } else if (charCode >= 97 && charCode <= 102) {
           return {
             ok: true,
             input: input.slice(1),
             output: input[0] as Hexadecimal,
+            context,
           };
         } else {
           return {
             ok: false,
             input,
             error: ErrorKind.Hex,
+            context,
           };
         }
       } else if (hexCase === "upper") {
@@ -448,18 +473,21 @@ export function hex(hexCase: HexCase = "both"): HexParser {
             ok: true,
             input: input.slice(1),
             output: input[0] as Hexadecimal,
+            context,
           };
         } else if (charCode >= 97 && charCode <= 102) {
           return {
             ok: false,
             input,
             error: ErrorKind.UpperHex,
+            context,
           };
         } else {
           return {
             ok: false,
             input,
             error: ErrorKind.Hex,
+            context,
           };
         }
       } else {
@@ -468,18 +496,21 @@ export function hex(hexCase: HexCase = "both"): HexParser {
             ok: true,
             input: input.slice(1),
             output: input[0] as Hexadecimal,
+            context,
           };
         } else if (charCode >= 65 && charCode <= 70) {
           return {
             ok: false,
             input,
             error: ErrorKind.LowerHex,
+            context,
           };
         } else {
           return {
             ok: false,
             input,
             error: ErrorKind.Hex,
+            context,
           };
         }
       }
@@ -554,7 +585,7 @@ export function alpha(): IParser<
   string
 > {
   return {
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
       if (
         charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122
@@ -563,12 +594,14 @@ export function alpha(): IParser<
           ok: true,
           input: input.slice(1),
           output: input.charAt(0) as LowerAlpha | UpperAlpha,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Alphabet,
+          context,
         };
       }
     },
@@ -583,7 +616,7 @@ export function alpha(): IParser<
  */
 export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
       if (
         charCode >= 97 && charCode <= 122
@@ -592,12 +625,14 @@ export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
           ok: true,
           input: input.slice(1),
           output: input.charAt(0) as LowerAlpha,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.LowerAlphabet,
+          context,
         };
       }
     },
@@ -612,7 +647,7 @@ export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
  */
 export function upper(): IParser<UpperAlpha, ErrorKind.UpperAlphabet, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       const charCode = input.charCodeAt(0);
       if (
         charCode >= 65 && charCode <= 90
@@ -621,12 +656,14 @@ export function upper(): IParser<UpperAlpha, ErrorKind.UpperAlphabet, string> {
           ok: true,
           input: input.slice(1),
           output: input.charAt(0) as UpperAlpha,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.UpperAlphabet,
+          context,
         };
       }
     },

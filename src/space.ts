@@ -8,18 +8,20 @@ import { ErrorKind } from "./error.ts";
  */
 export function space(): IParser<" ", ErrorKind.Space, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.charCodeAt(0) === 32) {
         return {
           ok: true,
           input: input.slice(1),
           output: " ",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Space,
+          context,
         };
       }
     },
@@ -33,18 +35,20 @@ export function space(): IParser<" ", ErrorKind.Space, string> {
  */
 export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.charCodeAt(0) === 13) {
         return {
           ok: true,
           input: input.slice(1),
           output: "\r",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.CarriageReturn,
+          context,
         };
       }
     },
@@ -58,18 +62,20 @@ export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
  */
 export function lf(): IParser<"\n", ErrorKind.LineFeed, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.charCodeAt(0) === 10) {
         return {
           ok: true,
           input: input.slice(1),
           output: "\n",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.LineFeed,
+          context,
         };
       }
     },
@@ -87,18 +93,20 @@ export function crlf(): IParser<
   string
 > {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.charCodeAt(0) === 13 && input.charCodeAt(1) === 10) {
         return {
           ok: true,
           input: input.slice(2),
           output: "\r\n",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.CarriageReturnLineFeed,
+          context,
         };
       }
     },
@@ -117,25 +125,28 @@ export function linebreak(): IParser<
   string
 > {
   return {
-    parse(input) {
+    parse(input, context) {
       const firstCharCode = input.charCodeAt(0);
       if (firstCharCode === 10) {
         return {
           ok: true,
           input: input.slice(1),
           output: "\n",
+          context,
         };
       } else if (firstCharCode === 13 && input.charCodeAt(1) === 10) {
         return {
           ok: true,
           input: input.slice(2),
           output: "\r\n",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Linebreak,
+          context,
         };
       }
     },
@@ -149,18 +160,20 @@ export function linebreak(): IParser<
  */
 export function tab(): IParser<"\t", ErrorKind.Tab, string> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.charCodeAt(0) === 9) {
         return {
           ok: true,
           input: input.slice(1),
           output: "\t",
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Tab,
+          context,
         };
       }
     },
@@ -237,18 +250,20 @@ export function whitespace(): IParser<
   string
 > {
   return {
-    parse(input) {
+    parse(input, context) {
       if (UNICODE_WHITESPACE.includes(input.charCodeAt(0))) {
         return {
           ok: true,
           input: input.slice(1),
           output: input[0] as Whitespace,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.Whitespace,
+          context,
         };
       }
     },
@@ -269,8 +284,8 @@ interface TrimParser<O, E> extends IParser<O, E, string> {
 export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
   return {
     parser,
-    parse(input) {
-      return this.parser.parse(input.trimStart());
+    parse(input, context) {
+      return this.parser.parse(input.trimStart(), context);
     },
   };
 }
@@ -285,18 +300,20 @@ export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
  */
 export function eof(): IParser<undefined, ErrorKind.EndOfFile, Input> {
   return {
-    parse(input) {
+    parse(input, context) {
       if (input.length === 0) {
         return {
           ok: true,
           input,
           output: undefined,
+          context,
         };
       } else {
         return {
           ok: false,
           input,
           error: ErrorKind.EndOfFile,
+          context,
         };
       }
     },

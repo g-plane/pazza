@@ -2,6 +2,7 @@ export * from "./src/branch.ts";
 export * from "./src/byte.ts";
 export * from "./src/char.ts";
 export * from "./src/combinator.ts";
+export * from "./src/context.ts";
 export * from "./src/core.ts";
 export * from "./src/error.ts";
 export * from "./src/misc.ts";

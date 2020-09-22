@@ -17,12 +17,12 @@ export function or<L, R, EL, ER, I extends Input>(
   right: IParser<R, ER, I>,
 ): IParser<L | R, EL | ER, I> {
   return {
-    parse(input) {
-      const result = left.parse(input);
+    parse(input, context) {
+      const result = left.parse(input, context);
       if (result.ok) {
         return result;
       } else {
-        return right.parse(input);
+        return right.parse(input, context);
       }
     },
   };
@@ -83,17 +83,17 @@ export function choice<
 >(...parsers: P): ChoiceParser<I, P> {
   return {
     parsers,
-    parse(input) {
+    parse(input, context) {
       const { parsers } = this;
       const lastIndex = parsers.length - 1;
       for (let i = 0; i < lastIndex; i += 1) {
-        const result = parsers[i].parse(input);
+        const result = parsers[i].parse(input, context);
         if (result.ok) {
           return result as ChoiceResult<I, P>;
         }
       }
 
-      return parsers[lastIndex].parse(input) as ChoiceResult<I, P>;
+      return parsers[lastIndex].parse(input, context) as ChoiceResult<I, P>;
     },
   };
 }

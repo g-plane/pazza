@@ -21,18 +21,18 @@ export function between<L, R, T, EL, ER, ET, I extends Input>(
   parser: IParser<T, ET, I>,
 ): IParser<T, EL | ER | ET, I> {
   return {
-    parse(input) {
-      const left = start.parse(input);
+    parse(input, context) {
+      const left = start.parse(input, context);
       if (!left.ok) {
         return left;
       }
 
-      const mid = parser.parse(left.input);
+      const mid = parser.parse(left.input, left.context);
       if (!mid.ok) {
         return mid;
       }
 
-      const right = end.parse(mid.input);
+      const right = end.parse(mid.input, mid.context);
       if (!right.ok) {
         return right;
       }
@@ -41,6 +41,7 @@ export function between<L, R, T, EL, ER, ET, I extends Input>(
         ok: true,
         input: right.input,
         output: mid.output,
+        context: right.context,
       };
     },
   };
@@ -97,21 +98,23 @@ export function serial<
 >(...parsers: P): SerialParser<I, P> {
   return {
     parsers,
-    parse(input) {
+    parse<C>(input: I, context?: C) {
       const { parsers } = this;
       const output: unknown[] = [];
 
       for (const parser of parsers) {
-        const result = parser.parse(input);
+        const result = parser.parse(input, context);
         if (!result.ok) {
           return result as {
             ok: false;
             input: I;
             error: SerialError<I, P>;
+            context: C | undefined;
           };
         }
 
         input = result.input;
+        context = result.context;
         output.push(result.output);
       }
 
@@ -119,6 +122,7 @@ export function serial<
         ok: true,
         input,
         output: output as SerialOutput<I, P>,
+        context,
       };
     },
   };
@@ -150,15 +154,15 @@ export function prefix<T, ET, EP, I extends Input>(
   return {
     prefix,
     parser,
-    parse(input) {
+    parse(input, context) {
       const { prefix, parser } = this;
 
-      const preceded = prefix.parse(input);
+      const preceded = prefix.parse(input, context);
       if (!preceded.ok) {
         return preceded;
       }
 
-      return parser.parse(preceded.input);
+      return parser.parse(preceded.input, preceded.context);
     },
   };
 }
@@ -190,15 +194,15 @@ export function suffix<T, ET, ES, I extends Input>(
   return {
     parser,
     suffix,
-    parse(input) {
+    parse(input, context) {
       const { parser, suffix } = this;
 
-      const result = parser.parse(input);
+      const result = parser.parse(input, context);
       if (!result.ok) {
         return result;
       }
 
-      const terminated = suffix.parse(result.input);
+      const terminated = suffix.parse(result.input, result.context);
       if (terminated.ok) {
         return { ...terminated, output: result.output };
       } else {

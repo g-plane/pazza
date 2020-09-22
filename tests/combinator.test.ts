@@ -8,12 +8,14 @@ Deno.test("map", () => {
     ok: true,
     input: "",
     output: 11,
+    context: undefined,
   });
 
   assertEquals(map(fail<number>(), (num) => num + 1).parse(""), {
     ok: false,
     input: "",
     error: "Fake parsing error.",
+    context: undefined,
   });
 });
 
@@ -22,12 +24,14 @@ Deno.test("mapErr", () => {
     ok: true,
     input: "",
     output: 10,
+    context: undefined,
   });
 
   assertEquals(mapErr(fail<number>(), (err) => `Error: ${err}`).parse(""), {
     ok: false,
     input: "",
     error: "Error: Fake parsing error.",
+    context: undefined,
   });
 });
 
@@ -36,12 +40,14 @@ Deno.test("optional", () => {
     ok: true,
     input: "",
     output: "test",
+    context: undefined,
   });
 
   assertEquals(optional(fail()).parse(""), {
     ok: true,
     input: "",
     output: null,
+    context: undefined,
   });
 });
 
@@ -50,12 +56,14 @@ Deno.test("satisfy", () => {
     ok: true,
     input: "b",
     output: "a",
+    context: undefined,
   });
 
   assertEquals(satisfy((item) => item === "a").parse("ba"), {
     ok: false,
     input: "ba",
     error: ErrorKind.Satisfy,
+    context: undefined,
   });
 
   assertEquals(
@@ -64,6 +72,7 @@ Deno.test("satisfy", () => {
       ok: true,
       input: Uint8Array.of(10),
       output: 13,
+      context: undefined,
     },
   );
 
@@ -71,5 +80,6 @@ Deno.test("satisfy", () => {
     ok: false,
     input: Uint8Array.of(8),
     error: ErrorKind.Satisfy,
+    context: undefined,
   });
 });

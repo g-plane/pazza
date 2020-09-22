@@ -36,12 +36,14 @@ Deno.test("char", () => {
     ok: true,
     input: "b",
     output: "a",
+    context: undefined,
   });
 
   assertEquals(char("a").parse("b"), {
     ok: false,
     input: "b",
     error: ErrorKind.Char,
+    context: undefined,
   });
 });
 
@@ -50,12 +52,14 @@ Deno.test("anyChar", () => {
     ok: true,
     input: "est",
     output: "t",
+    context: undefined,
   });
 
   assertEquals(anyChar().parse(""), {
     ok: false,
     input: "",
     error: ErrorKind.AnyChar,
+    context: undefined,
   });
 });
 
@@ -80,6 +84,7 @@ Deno.test("oneOfChars", () => {
       ok: true,
       input: "-",
       output: char,
+      context: undefined,
     });
   });
 
@@ -87,6 +92,7 @@ Deno.test("oneOfChars", () => {
     ok: false,
     input: "d",
     error: ErrorKind.OneOfChars,
+    context: undefined,
   });
 });
 
@@ -111,6 +117,7 @@ Deno.test("noneOfChars", () => {
       ok: false,
       input: char,
       error: ErrorKind.NoneOfChars,
+      context: undefined,
     });
   });
 
@@ -118,6 +125,7 @@ Deno.test("noneOfChars", () => {
     ok: true,
     input: "",
     output: "d",
+    context: undefined,
   });
 });
 
@@ -154,6 +162,7 @@ Deno.test("escapedWith", () => {
       ok: true,
       input: "",
       output: raw,
+      context: undefined,
     });
   });
 
@@ -161,6 +170,7 @@ Deno.test("escapedWith", () => {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedWith,
+    context: undefined,
   });
 });
 
@@ -188,16 +198,19 @@ Deno.test("escapedBy", () => {
     ok: true,
     input: "",
     output: 10,
+    context: undefined,
   });
   assertEquals(parser1.parse("\\t"), {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedBy,
+    context: undefined,
   });
   assertEquals(parser1.parse("\\"), {
     ok: false,
     input: "\\",
     error: ErrorKind.EscapedBy,
+    context: undefined,
   });
 
   const parser2 = escapedBy("\\", (char) => {
@@ -209,16 +222,19 @@ Deno.test("escapedBy", () => {
     ok: true,
     input: "",
     output: 10,
+    context: undefined,
   });
   assertEquals(parser2.parse("\\t"), {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedBy,
+    context: undefined,
   });
   assertEquals(parser2.parse("\\"), {
     ok: false,
     input: "\\",
     error: ErrorKind.EscapedBy,
+    context: undefined,
   });
 });
 
@@ -227,12 +243,14 @@ Deno.test("string", () => {
     ok: true,
     input: "ing",
     output: "str",
+    context: undefined,
   });
 
   assertEquals(string("str").parse(""), {
     ok: false,
     input: "",
     error: ErrorKind.String,
+    context: undefined,
   });
 });
 
@@ -243,6 +261,7 @@ Deno.test("octal", () => {
       ok: true,
       input: "",
       output: num,
+      context: undefined,
     });
   }
 
@@ -250,6 +269,7 @@ Deno.test("octal", () => {
     ok: false,
     input: "8",
     error: ErrorKind.Octal,
+    context: undefined,
   });
 });
 
@@ -260,6 +280,7 @@ Deno.test("digit", () => {
       ok: true,
       input: "",
       output: num,
+      context: undefined,
     });
   }
 
@@ -267,6 +288,7 @@ Deno.test("digit", () => {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
+    context: undefined,
   });
 });
 
@@ -277,6 +299,7 @@ Deno.test("hex", () => {
       ok: true,
       input: "",
       output: num,
+      context: undefined,
     });
   }
 
@@ -288,6 +311,7 @@ Deno.test("hex", () => {
       ok: true,
       input: "",
       output: c,
+      context: undefined,
     });
   });
 
@@ -296,6 +320,7 @@ Deno.test("hex", () => {
       ok: true,
       input: "",
       output: c,
+      context: undefined,
     });
   });
 
@@ -304,6 +329,7 @@ Deno.test("hex", () => {
       ok: true,
       input: "",
       output: c,
+      context: undefined,
     });
   });
 
@@ -312,6 +338,7 @@ Deno.test("hex", () => {
       ok: false,
       input: c,
       error: ErrorKind.LowerHex,
+      context: undefined,
     });
   });
 
@@ -320,6 +347,7 @@ Deno.test("hex", () => {
       ok: false,
       input: c,
       error: ErrorKind.UpperHex,
+      context: undefined,
     });
   });
 
@@ -328,6 +356,7 @@ Deno.test("hex", () => {
       ok: true,
       input: "",
       output: c,
+      context: undefined,
     });
   });
 
@@ -335,18 +364,21 @@ Deno.test("hex", () => {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
+    context: undefined,
   });
 
   assertEquals(hex("upper").parse("h"), {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
+    context: undefined,
   });
 
   assertEquals(hex("lower").parse("h"), {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
+    context: undefined,
   });
 });
 
@@ -357,6 +389,7 @@ Deno.test("alpha", () => {
       ok: true,
       input: "",
       output: char,
+      context: undefined,
     });
   }
 
@@ -366,6 +399,7 @@ Deno.test("alpha", () => {
       ok: true,
       input: "",
       output: char,
+      context: undefined,
     });
   }
 
@@ -373,6 +407,7 @@ Deno.test("alpha", () => {
     ok: false,
     input: "5",
     error: ErrorKind.Alphabet,
+    context: undefined,
   });
 });
 
@@ -383,6 +418,7 @@ Deno.test("lower", () => {
       ok: true,
       input: "",
       output: char,
+      context: undefined,
     });
   }
 
@@ -390,6 +426,7 @@ Deno.test("lower", () => {
     ok: false,
     input: "A",
     error: ErrorKind.LowerAlphabet,
+    context: undefined,
   });
 });
 
@@ -400,6 +437,7 @@ Deno.test("upper", () => {
       ok: true,
       input: "",
       output: char,
+      context: undefined,
     });
   }
 
@@ -407,5 +445,6 @@ Deno.test("upper", () => {
     ok: false,
     input: "a",
     error: ErrorKind.UpperAlphabet,
+    context: undefined,
   });
 });

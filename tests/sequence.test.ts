@@ -38,12 +38,14 @@ Deno.test("serial", () => {
     ok: true,
     input: "4",
     output: ["1", "2", "3"],
+    context: undefined,
   });
 
   assertEquals(parser.parse("124"), {
     ok: false,
     input: "4",
     error: ErrorKind.Char,
+    context: undefined,
   });
 });
 
@@ -54,18 +56,21 @@ Deno.test("prefix", () => {
     ok: true,
     input: "",
     output: "5",
+    context: undefined,
   });
 
   assertEquals(parser.parse("[5"), {
     ok: false,
     input: "[5",
     error: ErrorKind.Char,
+    context: undefined,
   });
 
   assertEquals(parser.parse("<a"), {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
+    context: undefined,
   });
 });
 
@@ -76,17 +81,20 @@ Deno.test("suffix", () => {
     ok: true,
     input: "",
     output: "5",
+    context: undefined,
   });
 
   assertEquals(parser.parse("5]"), {
     ok: false,
     input: "]",
     error: ErrorKind.Char,
+    context: undefined,
   });
 
   assertEquals(parser.parse("a>"), {
     ok: false,
     input: "a>",
     error: ErrorKind.Digit,
+    context: undefined,
   });
 });

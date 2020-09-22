@@ -1,15 +1,18 @@
 export type Input = string | Uint8Array;
 
-export type Result<I extends Input, Output, Err = unknown> =
-  | { ok: true; input: I; output: Output }
-  | { ok: false; input: I; error: Err };
+export type Result<I extends Input, Output, Err = unknown, C = never> =
+  | { ok: true; input: I; output: Output; context: C }
+  | { ok: false; input: I; error: Err; context: C };
 
 export interface IParser<
   Output,
   Err = unknown,
   I extends Input = string,
 > {
-  parse(input: I): Result<I, Output, Err>;
+  parse<C = never>(
+    input: I,
+    context?: C,
+  ): Result<I, Output, Err, C | undefined>;
 }
 
 export type ParserInput<P extends IParser<unknown, unknown, Input>> = P extends

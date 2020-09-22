@@ -20,10 +20,10 @@ export function lazy<O, E, I extends Input>(
   return {
     fn,
     parser: null,
-    parse(input) {
+    parse(input, context) {
       this.parser ??= this.fn();
 
-      return this.parser.parse(input);
+      return this.parser.parse(input, context);
     },
   };
 }
