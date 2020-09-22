@@ -7,9 +7,9 @@ import type {
   ParserError,
 } from "./core.ts";
 
-type ContextParser<P extends IParser<unknown, unknown, Input>, C> = {
-  parser: P;
+type ContextParser<C, P extends IParser<unknown, unknown, Input>> = {
   context: C;
+  parser: P;
 
   parse(
     input: ParserInput<P>,
@@ -19,15 +19,16 @@ type ContextParser<P extends IParser<unknown, unknown, Input>, C> = {
 /**
  * Execute the embedded parser with a parser context.
  *
- *     context(digit(), { anything: 'any-value' }).parse("").context;
+ *     const myContext = { anything: 'any-value' };
+ *     context(myContext, digit()).parse("").context === myContext;
  *
  * @param parser embedded parser
  * @param context parser context
  */
-export function context<P extends IParser<unknown, unknown, Input>, C>(
-  parser: P,
+export function context<C, P extends IParser<unknown, unknown, Input>>(
   context: C,
-): ContextParser<P, C> {
+  parser: P,
+): ContextParser<C, P> {
   return {
     parser,
     context,
