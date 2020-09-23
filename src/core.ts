@@ -8,8 +8,9 @@ export interface IParser<
   Output,
   Err = unknown,
   I extends Input = string,
+  Ctx = unknown,
 > {
-  parse<C = never>(
+  parse<C extends Ctx = Ctx>(
     input: I,
     context?: C,
   ): Result<I, Output, Err, C | undefined>;
