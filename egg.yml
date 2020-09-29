@@ -10,3 +10,6 @@ files:
   - ./LICENSE
   - ./mod.ts
   - ./README.md
+ignore:
+  accepts: []
+  denies: []
