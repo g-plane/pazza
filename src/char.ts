@@ -1,7 +1,8 @@
-import type { IParser } from "./core.ts";
+import type { IParser, Result } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
-function ensureSingleCharacter(str: string) {
+// TODO: enhance the type by using template literal type.
+function ensureSingleCharacter(str: string): asserts str is string {
   if (str.length !== 1) {
     throw new TypeError(
       "Argument of character parser must be a single character.",
@@ -9,10 +10,6 @@ function ensureSingleCharacter(str: string) {
   }
 }
 
-interface CharParser<C> extends IParser<C, ErrorKind.Char, string> {
-  char: C;
-  charCode: number;
-}
 /**
  * Parse a specified character.
  *
@@ -20,163 +17,160 @@ interface CharParser<C> extends IParser<C, ErrorKind.Char, string> {
  * if a non-single-character string passed,
  * an error will be thrown.
  *
- *     char("a").parse("a").output === "a";
- *     char("a").parse("b").ok === false;
+ *     char("a")("a").output === "a";
+ *     char("a")("b").ok === false;
  *
  * @param char character to be parsed
  */
-export function char<C extends string>(char: C): CharParser<C> {
+export function char<Char extends string>(
+  char: Char,
+): IParser<Char, ErrorKind.Char, string> {
   ensureSingleCharacter(char);
 
-  return {
-    char,
-    charCode: char.charCodeAt(0),
-    parse(input, context) {
-      const { char, charCode } = this;
-      if (input.charCodeAt(0) === charCode) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: char,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Char,
-          context,
-        };
-      }
-    },
-  };
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, Char, ErrorKind.Char, C> {
+    const { char, charCode } = parse;
+    if (input.charCodeAt(0) === charCode) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: char,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Char,
+        context,
+      };
+    }
+  }
+  parse.char = char;
+  parse.charCode = char.charCodeAt(0);
+
+  return parse;
 }
 
 /**
  * Parse any single character.
  *
- *     anyChar().parse("a").output === "a";
+ *     anyChar()("a").output === "a";
  */
 export function anyChar(): IParser<string, ErrorKind.AnyChar, string> {
-  return {
-    parse(input, context) {
-      if (input === "") {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.AnyChar,
-          context,
-        };
-      } else {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input.charAt(0),
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, string, ErrorKind.AnyChar, C> => {
+    if (input === "") {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.AnyChar,
+        context,
+      };
+    } else {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input.charAt(0),
+        context,
+      };
+    }
   };
 }
 
-interface OneOfCharsParser<S extends readonly string[]>
-  extends IParser<S[number], ErrorKind.OneOfChars, string> {
-  charCodes: number[];
-}
 /**
  * Parse one of provided characters.
  *
  *     const parser = oneOfChars("a", "b");
- *     parser.parse("a").output === "a";
- *     parser.parse("c").ok === false;
+ *     parser("a").output === "a";
+ *     parser("c").ok === false;
  *
  * @param chars acceptable characters
  */
 export function oneOfChars<S extends readonly string[]>(
   ...chars: S
-): OneOfCharsParser<S> {
+): IParser<S[number], ErrorKind.OneOfChars, string> {
   chars.forEach(ensureSingleCharacter);
 
-  return {
-    charCodes: chars.map((char) => char.charCodeAt(0)),
-    parse(input, context) {
-      const { charCodes } = this;
-      const firstCharCode = input.charCodeAt(0);
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, S[number], ErrorKind.OneOfChars, C> {
+    const firstCharCode = input.charCodeAt(0);
 
-      if (charCodes.includes(firstCharCode)) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input[0],
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.OneOfChars,
-          context,
-        };
-      }
-    },
-  };
+    if (parse.charCodes.includes(firstCharCode)) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0],
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.OneOfChars,
+        context,
+      };
+    }
+  }
+  parse.charCodes = chars.map((char) => char.charCodeAt(0));
+
+  return parse;
 }
 
-interface NoneOfCharsParser
-  extends IParser<string, ErrorKind.NoneOfChars, string> {
-  charCodes: number[];
-}
 /**
  * Parse any character but not in provided characters.
  *
  *
  *     const parser = noneOfChars("a", "b");
- *     parser.parse("a").ok === false;
- *     parser.parse("c").output === "c";
+ *     parser("a").ok === false;
+ *     parser("c").output === "c";
  *
  * @param chars characters to be excluded
  */
 export function noneOfChars<S extends readonly string[]>(
   ...chars: S
-): NoneOfCharsParser {
+): IParser<string, ErrorKind.NoneOfChars, string> {
   chars.forEach(ensureSingleCharacter);
 
-  return {
-    charCodes: chars.map((char) => char.charCodeAt(0)),
-    parse(input, context) {
-      const { charCodes } = this;
-      const firstCharCode = input.charCodeAt(0);
-      if (charCodes.includes(firstCharCode)) {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.NoneOfChars,
-          context,
-        };
-      } else {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input[0],
-          context,
-        };
-      }
-    },
-  };
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, string, ErrorKind.NoneOfChars, C> {
+    const firstCharCode = input.charCodeAt(0);
+    if (parse.charCodes.includes(firstCharCode)) {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.NoneOfChars,
+        context,
+      };
+    } else {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0],
+        context,
+      };
+    }
+  }
+  parse.charCodes = chars.map((char) => char.charCodeAt(0));
+
+  return parse;
 }
 
-interface EscapedWithParser<V>
-  extends IParser<V, ErrorKind.EscapedWith, string> {
-  controlCharCode: number;
-  map: Map<number, V>;
-}
 /**
  * Parse escaped characters and
  * convert values according to provided "entries".
  *
  *     const parser = escapedWith("\\", [["n", "\n"], ["r", "\r"]]);
- *     parser.parse("\\n").output === "\n";
- *     parser.parse("\\b").ok === false;
+ *     parser("\\n").output === "\n";
+ *     parser("\\b").ok === false;
  *
  * @param controlChar Control char, like "\\" in most programming languages.
  * @param entries Entries map to look up escaping.
@@ -184,34 +178,25 @@ interface EscapedWithParser<V>
 export function escapedWith<V>(
   controlChar: string,
   entries: readonly (readonly [string, V])[],
-): EscapedWithParser<V> {
+): IParser<V, ErrorKind.EscapedWith, string> {
   ensureSingleCharacter(controlChar);
   entries.forEach(([key]) => ensureSingleCharacter(key));
 
-  return {
-    controlCharCode: controlChar.charCodeAt(0),
-    map: new Map(entries.map(([key, value]) => [key.charCodeAt(0), value])),
-    parse(input, context) {
-      const { controlCharCode, map } = this;
-      const firstCharCode = input.charCodeAt(0);
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, V, ErrorKind.EscapedWith, C> {
+    const firstCharCode = input.charCodeAt(0);
 
-      if (firstCharCode === controlCharCode) {
-        const value = map.get(input.charCodeAt(1));
-        if (value !== undefined) {
-          return {
-            ok: true,
-            input: input.slice(2),
-            output: value,
-            context,
-          };
-        } else {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.EscapedWith,
-            context,
-          };
-        }
+    if (firstCharCode === parse.controlCharCode) {
+      const value = parse.map.get(input.charCodeAt(1));
+      if (value !== undefined) {
+        return {
+          ok: true,
+          input: input.slice(2),
+          output: value,
+          context,
+        };
       } else {
         return {
           ok: false,
@@ -220,15 +205,23 @@ export function escapedWith<V>(
           context,
         };
       }
-    },
-  };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.EscapedWith,
+        context,
+      };
+    }
+  }
+  parse.controlCharCode = controlChar.charCodeAt(0);
+  parse.map = new Map(
+    entries.map(([key, value]) => [key.charCodeAt(0), value]),
+  );
+
+  return parse;
 }
 
-interface EscapedByParser<V>
-  extends IParser<NonNullable<V>, ErrorKind.EscapedBy, string> {
-  controlCharCode: number;
-  transformer: (char: string) => V;
-}
 /**
  * Parse escaped characters by calling a provided transformer function
  * to allow to customize escaping logic.
@@ -238,8 +231,8 @@ interface EscapedByParser<V>
  *         return "\n";
  *       }
  *     });
- *     parser.parse("\\n").output === "\n";
- *     parser.parse("\\t").ok === false;
+ *     parser("\\n").output === "\n";
+ *     parser("\\t").ok === false;
  *
  * @param controlChar Control char, like "\\" in most programming languages.
  * @param transformer Transformer function, with a single character as argument.
@@ -247,42 +240,34 @@ interface EscapedByParser<V>
 export function escapedBy<V>(
   controlChar: string,
   transformer: (char: string) => V,
-): EscapedByParser<V> {
+): IParser<V, ErrorKind.EscapedBy, string> {
   ensureSingleCharacter(controlChar);
 
-  return {
-    controlCharCode: controlChar.charCodeAt(0),
-    transformer,
-    parse(input, context) {
-      if (input.length < 2) {
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, V, ErrorKind.EscapedBy, C> {
+    if (input.length < 2) {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.EscapedBy,
+        context,
+      };
+    }
+
+    const { controlCharCode, transformer } = parse;
+    const firstCharCode = input.charCodeAt(0);
+
+    if (firstCharCode === controlCharCode) {
+      const output = transformer(input[1]);
+      if (output !== null && output !== undefined) {
         return {
-          ok: false,
-          input,
-          error: ErrorKind.EscapedBy,
+          ok: true,
+          input: input.slice(2),
+          output: output as NonNullable<V>,
           context,
         };
-      }
-
-      const { controlCharCode, transformer } = this;
-      const firstCharCode = input.charCodeAt(0);
-
-      if (firstCharCode === controlCharCode) {
-        const output = transformer(input[1]);
-        if (output !== null && output !== undefined) {
-          return {
-            ok: true,
-            input: input.slice(2),
-            output: output as NonNullable<V>,
-            context,
-          };
-        } else {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.EscapedBy,
-            context,
-          };
-        }
       } else {
         return {
           ok: false,
@@ -291,44 +276,57 @@ export function escapedBy<V>(
           context,
         };
       }
-    },
-  };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.EscapedBy,
+        context,
+      };
+    }
+  }
+  parse.controlCharCode = controlChar.charCodeAt(0);
+  parse.transformer = transformer;
+
+  return parse;
 }
 
-interface StringParser<S> extends IParser<S, ErrorKind.String, string> {
-  literal: S;
-}
 /**
  * Parse a specified string.
  *
  *     const parser = string("ab");
- *     parser.parse("ab").output === "ab";
- *     parser.parse("ac").ok === false;
+ *     parser("ab").output === "ab";
+ *     parser("ac").ok === false;
  *
  * @param literal string literal
  */
-export function string<S extends string>(literal: S): StringParser<S> {
-  return {
-    literal,
-    parse(input, context) {
-      const { literal } = this;
-      if (input.slice(0, literal.length) === literal) {
-        return {
-          ok: true,
-          input: input.slice(literal.length),
-          output: literal,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.String,
-          context,
-        };
-      }
-    },
-  };
+export function string<S extends string>(
+  literal: S,
+): IParser<S, ErrorKind.String, string> {
+  function parse<C, I extends string>(
+    input: I,
+    context: C = Object.create(null),
+  ): Result<string, S, ErrorKind.String, C> {
+    const { literal } = parse;
+    if (input.slice(0, literal.length) === literal) {
+      return {
+        ok: true,
+        input: input.slice(literal.length),
+        output: literal,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.String,
+        context,
+      };
+    }
+  }
+  parse.literal = literal;
+
+  return parse;
 }
 
 type OctalDigit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
@@ -336,29 +334,30 @@ type OctalDigit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
 /**
  * Parse an octal digit.
  *
- *     octal().parse("7").output === "7";
- *     octal().parse("8").ok === false;
+ *     octal()("7").output === "7";
+ *     octal()("8").ok === false;
  */
 export function octal(): IParser<OctalDigit, ErrorKind.Octal, string> {
-  return {
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
-      if (charCode >= 48 && charCode <= 55) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input[0] as OctalDigit,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Octal,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, OctalDigit, ErrorKind.Octal, C> => {
+    const charCode = input.charCodeAt(0);
+    if (charCode >= 48 && charCode <= 55) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0] as OctalDigit,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Octal,
+        context,
+      };
+    }
   };
 }
 
@@ -367,29 +366,30 @@ type Digit = OctalDigit | "8" | "9";
 /**
  * Parse a digit.
  *
- *     digit().parse("9").output === "9";
- *     digit().parse("a").ok === false;
+ *     digit()("9").output === "9";
+ *     digit()("a").ok === false;
  */
 export function digit(): IParser<Digit, ErrorKind.Digit, string> {
-  return {
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
-      if (charCode >= 48 && charCode <= 57) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input[0] as Digit,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Digit,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, Digit, ErrorKind.Digit, C> => {
+    const charCode = input.charCodeAt(0);
+    if (charCode >= 48 && charCode <= 57) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0] as Digit,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Digit,
+        context,
+      };
+    }
   };
 }
 
@@ -409,113 +409,119 @@ type Hexadecimal =
   | "F";
 type HexCase = "both" | "upper" | "lower";
 
-interface HexParser extends
-  IParser<
-    Hexadecimal,
-    ErrorKind.Hex | ErrorKind.UpperHex | ErrorKind.LowerHex,
-    string
-  > {
-  hexCase: HexCase;
-}
 /**
  * Parse a hexadecimal character.
  *
- *     hex().parse("5").output === "5";
- *     hex().parse("a").output === "a";
- *     hex().parse("A").output === "A";
- *     hex("upper").parse("a").ok === false;
- *     hex("lower").parse("A").ok === false;
+ *     hex()("5").output === "5";
+ *     hex()("a").output === "a";
+ *     hex()("A").output === "A";
+ *     hex("upper")("a").ok === false;
+ *     hex("lower")("A").ok === false;
  *
  * @param hexCase Hexadecimal case. Default is "both".
  */
-export function hex(hexCase: HexCase = "both"): HexParser {
-  return {
-    hexCase,
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
+export function hex(
+  hexCase: HexCase = "both",
+): IParser<
+  Hexadecimal,
+  ErrorKind.Hex | ErrorKind.UpperHex | ErrorKind.LowerHex,
+  string
+> {
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<
+    string,
+    Hexadecimal,
+    ErrorKind.Hex | ErrorKind.UpperHex | ErrorKind.LowerHex,
+    C
+  > {
+    const charCode = input.charCodeAt(0);
 
-      if (charCode >= 48 && charCode <= 57) {
+    if (charCode >= 48 && charCode <= 57) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0] as Digit,
+        context,
+      };
+    }
+
+    const { hexCase } = parse;
+    if (hexCase === "both") {
+      if (charCode >= 65 && charCode <= 70) {
         return {
           ok: true,
           input: input.slice(1),
-          output: input[0] as Digit,
+          output: input[0] as Hexadecimal,
+          context,
+        };
+      } else if (charCode >= 97 && charCode <= 102) {
+        return {
+          ok: true,
+          input: input.slice(1),
+          output: input[0] as Hexadecimal,
+          context,
+        };
+      } else {
+        return {
+          ok: false,
+          input,
+          error: ErrorKind.Hex,
           context,
         };
       }
-
-      const { hexCase } = this;
-      if (hexCase === "both") {
-        if (charCode >= 65 && charCode <= 70) {
-          return {
-            ok: true,
-            input: input.slice(1),
-            output: input[0] as Hexadecimal,
-            context,
-          };
-        } else if (charCode >= 97 && charCode <= 102) {
-          return {
-            ok: true,
-            input: input.slice(1),
-            output: input[0] as Hexadecimal,
-            context,
-          };
-        } else {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.Hex,
-            context,
-          };
-        }
-      } else if (hexCase === "upper") {
-        if (charCode >= 65 && charCode <= 70) {
-          return {
-            ok: true,
-            input: input.slice(1),
-            output: input[0] as Hexadecimal,
-            context,
-          };
-        } else if (charCode >= 97 && charCode <= 102) {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.UpperHex,
-            context,
-          };
-        } else {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.Hex,
-            context,
-          };
-        }
+    } else if (hexCase === "upper") {
+      if (charCode >= 65 && charCode <= 70) {
+        return {
+          ok: true,
+          input: input.slice(1),
+          output: input[0] as Hexadecimal,
+          context,
+        };
+      } else if (charCode >= 97 && charCode <= 102) {
+        return {
+          ok: false,
+          input,
+          error: ErrorKind.UpperHex,
+          context,
+        };
       } else {
-        if (charCode >= 97 && charCode <= 102) {
-          return {
-            ok: true,
-            input: input.slice(1),
-            output: input[0] as Hexadecimal,
-            context,
-          };
-        } else if (charCode >= 65 && charCode <= 70) {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.LowerHex,
-            context,
-          };
-        } else {
-          return {
-            ok: false,
-            input,
-            error: ErrorKind.Hex,
-            context,
-          };
-        }
+        return {
+          ok: false,
+          input,
+          error: ErrorKind.Hex,
+          context,
+        };
       }
-    },
-  };
+    } else {
+      if (charCode >= 97 && charCode <= 102) {
+        return {
+          ok: true,
+          input: input.slice(1),
+          output: input[0] as Hexadecimal,
+          context,
+        };
+      } else if (charCode >= 65 && charCode <= 70) {
+        return {
+          ok: false,
+          input,
+          error: ErrorKind.LowerHex,
+          context,
+        };
+      } else {
+        return {
+          ok: false,
+          input,
+          error: ErrorKind.Hex,
+          context,
+        };
+      }
+    }
+  }
+  parse.hexCase = hexCase;
+
+  return parse;
 }
 
 type LowerAlpha =
@@ -576,96 +582,99 @@ type UpperAlpha =
 /**
  * Parse an alphabet character.
  *
- *     alpha().parse("m").output === "m";
- *     alpha().parse("M").output === "M";
+ *     alpha()("m").output === "m";
+ *     alpha()("M").output === "M";
  */
 export function alpha(): IParser<
   LowerAlpha | UpperAlpha,
   ErrorKind.Alphabet,
   string
 > {
-  return {
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
-      if (
-        charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122
-      ) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input.charAt(0) as LowerAlpha | UpperAlpha,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Alphabet,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, LowerAlpha | UpperAlpha, ErrorKind.Alphabet, C> => {
+    const charCode = input.charCodeAt(0);
+    if (
+      charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122
+    ) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input.charAt(0) as LowerAlpha | UpperAlpha,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Alphabet,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse a lowercase alphabet character.
  *
- *     lower().parse("m").output === "m";
- *     lower().parse("M").ok === false;
+ *     lower()("m").output === "m";
+ *     lower()("M").ok === false;
  */
 export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
-  return {
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
-      if (
-        charCode >= 97 && charCode <= 122
-      ) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input.charAt(0) as LowerAlpha,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.LowerAlphabet,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, LowerAlpha, ErrorKind.LowerAlphabet, C> => {
+    const charCode = input.charCodeAt(0);
+    if (
+      charCode >= 97 && charCode <= 122
+    ) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input.charAt(0) as LowerAlpha,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.LowerAlphabet,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse an uppercase alphabet character.
  *
- *     upper().parse("m").ok === false;
- *     upper().parse("M").output === "M";
+ *     upper()("m").ok === false;
+ *     upper()("M").output === "M";
  */
 export function upper(): IParser<UpperAlpha, ErrorKind.UpperAlphabet, string> {
-  return {
-    parse(input, context) {
-      const charCode = input.charCodeAt(0);
-      if (
-        charCode >= 65 && charCode <= 90
-      ) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input.charAt(0) as UpperAlpha,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.UpperAlphabet,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, UpperAlpha, ErrorKind.UpperAlphabet, C> => {
+    const charCode = input.charCodeAt(0);
+    if (
+      charCode >= 65 && charCode <= 90
+    ) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input.charAt(0) as UpperAlpha,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.UpperAlphabet,
+        context,
+      };
+    }
   };
 }

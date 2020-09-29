@@ -14,105 +14,105 @@ import {
 } from "../mod.ts";
 
 Deno.test("space", () => {
-  assertEquals(space().parse("  "), {
+  assertEquals(space()("  "), {
     ok: true,
     input: " ",
     output: " ",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(space().parse("\n"), {
+  assertEquals(space()("\n"), {
     ok: false,
     input: "\n",
     error: ErrorKind.Space,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("cr", () => {
-  assertEquals(cr().parse("\rabc"), {
+  assertEquals(cr()("\rabc"), {
     ok: true,
     input: "abc",
     output: "\r",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(cr().parse("\nabc"), {
+  assertEquals(cr()("\nabc"), {
     ok: false,
     input: "\nabc",
     error: ErrorKind.CarriageReturn,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("lf", () => {
-  assertEquals(lf().parse("\nabc"), {
+  assertEquals(lf()("\nabc"), {
     ok: true,
     input: "abc",
     output: "\n",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(lf().parse("\rabc"), {
+  assertEquals(lf()("\rabc"), {
     ok: false,
     input: "\rabc",
     error: ErrorKind.LineFeed,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("crlf", () => {
-  assertEquals(crlf().parse("\r\nabc"), {
+  assertEquals(crlf()("\r\nabc"), {
     ok: true,
     input: "abc",
     output: "\r\n",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(crlf().parse("\nabc"), {
+  assertEquals(crlf()("\nabc"), {
     ok: false,
     input: "\nabc",
     error: ErrorKind.CarriageReturnLineFeed,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("linebreak", () => {
-  assertEquals(linebreak().parse("\r\nabc"), {
+  assertEquals(linebreak()("\r\nabc"), {
     ok: true,
     input: "abc",
     output: "\r\n",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(linebreak().parse("\nabc"), {
+  assertEquals(linebreak()("\nabc"), {
     ok: true,
     input: "abc",
     output: "\n",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(linebreak().parse("\rabc"), {
+  assertEquals(linebreak()("\rabc"), {
     ok: false,
     input: "\rabc",
     error: ErrorKind.Linebreak,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("tab", () => {
-  assertEquals(tab().parse("\tabc"), {
+  assertEquals(tab()("\tabc"), {
     ok: true,
     input: "abc",
     output: "\t",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(tab().parse(" abc"), {
+  assertEquals(tab()(" abc"), {
     ok: false,
     input: " abc",
     error: ErrorKind.Tab,
-    context: undefined,
+    context: {},
   });
 });
 
@@ -146,58 +146,58 @@ Deno.test("whitespace", () => {
   ];
 
   unicodeWhitespace.forEach((char) => {
-    assertEquals(whitespace().parse(char), {
+    assertEquals(whitespace()(char), {
       ok: true,
       input: "",
       output: char,
-      context: undefined,
+      context: {},
     });
   });
 
-  assertEquals(whitespace().parse("\uFEFF"), {
+  assertEquals(whitespace()("\uFEFF"), {
     ok: false,
     input: "\uFEFF",
     error: ErrorKind.Whitespace,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("trim", () => {
-  const result = trim(alpha()).parse("  \n  \t  \r  \f  abc");
+  const result = trim(alpha())("  \n  \t  \r  \f  abc");
   assertEquals(result, {
     ok: true,
     input: "bc",
     output: "a",
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("eof", () => {
-  assertEquals(eof().parse(""), {
+  assertEquals(eof()(""), {
     ok: true,
     input: "",
     output: undefined,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(eof().parse("t"), {
+  assertEquals(eof()("t"), {
     ok: false,
     input: "t",
     error: ErrorKind.EndOfFile,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(eof().parse(Uint8Array.of()), {
+  assertEquals(eof()(Uint8Array.of()), {
     ok: true,
     input: Uint8Array.of(),
     output: undefined,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(eof().parse(Uint8Array.of(65)), {
+  assertEquals(eof()(Uint8Array.of(65)), {
     ok: false,
     input: Uint8Array.of(65),
     error: ErrorKind.EndOfFile,
-    context: undefined,
+    context: {},
   });
 });

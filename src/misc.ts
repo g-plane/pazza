@@ -1,9 +1,5 @@
-import type { IParser, Input } from "./core.ts";
+import type { IParser, Input, Result } from "./core.ts";
 
-interface LazyParser<O, E, I extends Input> extends IParser<O, E, I> {
-  fn: () => IParser<O, E, I>;
-  parser: IParser<O, E, I> | null;
-}
 /**
  * Construct a parser only when it's needed.
  * This is useful when building a recursive parser.
@@ -16,14 +12,17 @@ interface LazyParser<O, E, I extends Input> extends IParser<O, E, I> {
  */
 export function lazy<O, E, I extends Input>(
   fn: () => IParser<O, E, I>,
-): LazyParser<O, E, I> {
-  return {
-    fn,
-    parser: null,
-    parse(input, context) {
-      this.parser ??= this.fn();
+): IParser<O, E, I> {
+  function parse<C>(
+    input: I,
+    context: C = Object.create(null),
+  ): Result<I, O, E, C> {
+    parse.parser ??= parse.fn();
 
-      return this.parser.parse(input, context);
-    },
-  };
+    return parse.parser(input, context);
+  }
+  parse.fn = fn;
+  parse.parser = null as IParser<O, E, I> | null;
+
+  return parse;
 }

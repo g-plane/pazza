@@ -2,7 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
 import { jsonValue } from "./json.ts";
 
 Deno.test("jsonParser", () => {
-  const result = jsonValue().parse(`
+  const result = jsonValue()(`
     [
       2,
       -43.21,
@@ -32,6 +32,6 @@ Deno.test("jsonParser", () => {
         "c": null,
       },
     ],
-    context: undefined,
+    context: {},
   });
 });

@@ -1,3 +1,4 @@
+// deno-lint-ignore-file ban-ts-comment
 import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
 import {
   between,
@@ -7,94 +8,108 @@ import {
   char,
   digit,
   ErrorKind,
+  IParser,
 } from "../mod.ts";
 
 Deno.test("between", () => {
   assertEquals(
-    between(char("["), char("]"), digit()).parse("[5]"),
-    digit().parse("5"),
+    between(char("["), char("]"), digit())("[5]"),
+    digit()("5"),
   );
 
   assertEquals(
-    between(char("["), char("]"), digit()).parse("5]"),
-    char("[").parse("5]"),
+    between(char("["), char("]"), digit())("5]"),
+    char("[")("5]"),
   );
 
   assertEquals(
-    between(char("["), char("]"), digit()).parse("[]"),
-    digit().parse("]"),
+    between(char("["), char("]"), digit())("[]"),
+    digit()("]"),
   );
 
   assertEquals(
-    between(char("["), char("]"), digit()).parse("[5"),
-    char("]").parse(""),
+    between(char("["), char("]"), digit())("[5"),
+    char("]")(""),
   );
 });
 
 Deno.test("serial", () => {
   const parser = serial(char("1"), char("2"), char("3"));
 
-  assertEquals(parser.parse("1234"), {
+  assertEquals(parser("1234"), {
     ok: true,
     input: "4",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("124"), {
+  assertEquals(parser("124"), {
     ok: false,
     input: "4",
     error: ErrorKind.Char,
-    context: undefined,
+    context: {},
   });
+
+  // context typing tests
+  const parser1 = digit() as IParser<string, ErrorKind, string, { t1: string }>;
+  const parser2 = digit() as IParser<string, ErrorKind, string, { t2: number }>;
+  const parser3 = serial(parser1, parser2);
+  // @ts-expect-error
+  parser3("", { t1: "" });
+  // @ts-expect-error
+  parser3("", { t2: 0 });
+  // @ts-expect-error
+  parser3("", { t1: 0, t2: "" });
+  const _: { t1: string; t2: number; t3: boolean } =
+    parser3("", { t1: "", t2: 0, t3: true }).context;
 });
 
 Deno.test("prefix", () => {
   const parser = prefix(char("<"), digit());
 
-  assertEquals(parser.parse("<5"), {
+  assertEquals(parser("<5"), {
     ok: true,
     input: "",
     output: "5",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("[5"), {
+  assertEquals(parser("[5"), {
     ok: false,
     input: "[5",
     error: ErrorKind.Char,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("<a"), {
+  assertEquals(parser("<a"), {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("suffix", () => {
   const parser = suffix(digit(), char(">"));
 
-  assertEquals(parser.parse("5>"), {
+  assertEquals(parser("5>"), {
     ok: true,
     input: "",
     output: "5",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("5]"), {
+  assertEquals(parser("5]"), {
     ok: false,
     input: "]",
     error: ErrorKind.Char,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a>"), {
+  assertEquals(parser("a>"), {
     ok: false,
     input: "a>",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });

@@ -1,182 +1,188 @@
-import type { IParser, Input } from "./core.ts";
+import type { IParser, Input, Result } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
 /**
  * Parse a single "space" character.
  *
- *     space().parse(" ").output === " ";
+ *     space()(" ").output === " ";
  */
 export function space(): IParser<" ", ErrorKind.Space, string> {
-  return {
-    parse(input, context) {
-      if (input.charCodeAt(0) === 32) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: " ",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Space,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, " ", ErrorKind.Space, C> => {
+    if (input.charCodeAt(0) === 32) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: " ",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Space,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse a single "carriage return" character.
  *
- *     cr().parse("\r").output === "\r";
+ *     cr()("\r").output === "\r";
  */
 export function cr(): IParser<"\r", ErrorKind.CarriageReturn, string> {
-  return {
-    parse(input, context) {
-      if (input.charCodeAt(0) === 13) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: "\r",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.CarriageReturn,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, "\r", ErrorKind.CarriageReturn, C> => {
+    if (input.charCodeAt(0) === 13) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: "\r",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.CarriageReturn,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse a single "line feed" character.
  *
- *     lf().parse("\n").output === "\n";
+ *     lf()("\n").output === "\n";
  */
 export function lf(): IParser<"\n", ErrorKind.LineFeed, string> {
-  return {
-    parse(input, context) {
-      if (input.charCodeAt(0) === 10) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: "\n",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.LineFeed,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, "\n", ErrorKind.LineFeed, C> => {
+    if (input.charCodeAt(0) === 10) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: "\n",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.LineFeed,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse paired "carriage return - line feed" characters.
  *
- *     crlf().parse("\r\n").output === "\r\n";
+ *     crlf()("\r\n").output === "\r\n";
  */
 export function crlf(): IParser<
   "\r\n",
   ErrorKind.CarriageReturnLineFeed,
   string
 > {
-  return {
-    parse(input, context) {
-      if (input.charCodeAt(0) === 13 && input.charCodeAt(1) === 10) {
-        return {
-          ok: true,
-          input: input.slice(2),
-          output: "\r\n",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.CarriageReturnLineFeed,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, "\r\n", ErrorKind.CarriageReturnLineFeed, C> => {
+    if (input.charCodeAt(0) === 13 && input.charCodeAt(1) === 10) {
+      return {
+        ok: true,
+        input: input.slice(2),
+        output: "\r\n",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.CarriageReturnLineFeed,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse linebreak, which can be "\n" or "\r\n".
  *
- *     linebreak().parse("\n").output === "\n";
- *     linebreak().parse("\r\n").output === "\r\n";
+ *     linebreak()("\n").output === "\n";
+ *     linebreak()("\r\n").output === "\r\n";
  */
 export function linebreak(): IParser<
   "\n" | "\r\n",
   ErrorKind.Linebreak,
   string
 > {
-  return {
-    parse(input, context) {
-      const firstCharCode = input.charCodeAt(0);
-      if (firstCharCode === 10) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: "\n",
-          context,
-        };
-      } else if (firstCharCode === 13 && input.charCodeAt(1) === 10) {
-        return {
-          ok: true,
-          input: input.slice(2),
-          output: "\r\n",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Linebreak,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, "\n" | "\r\n", ErrorKind.Linebreak, C> => {
+    const firstCharCode = input.charCodeAt(0);
+    if (firstCharCode === 10) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: "\n",
+        context,
+      };
+    } else if (firstCharCode === 13 && input.charCodeAt(1) === 10) {
+      return {
+        ok: true,
+        input: input.slice(2),
+        output: "\r\n",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Linebreak,
+        context,
+      };
+    }
   };
 }
 
 /**
  * Parse a single "tab" character.
  *
- *     tab().parse("\t").output === "\t";
+ *     tab()("\t").output === "\t";
  */
 export function tab(): IParser<"\t", ErrorKind.Tab, string> {
-  return {
-    parse(input, context) {
-      if (input.charCodeAt(0) === 9) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: "\t",
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Tab,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, "\t", ErrorKind.Tab, C> => {
+    if (input.charCodeAt(0) === 9) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: "\t",
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Tab,
+        context,
+      };
+    }
   };
 }
 
@@ -242,52 +248,55 @@ const UNICODE_WHITESPACE = [
 /**
  * Parse a Unicode Whitespace character.
  *
- *     whitespace().parse("\v").output === "\v";
+ *     whitespace()("\v").output === "\v";
  */
 export function whitespace(): IParser<
   Whitespace,
   ErrorKind.Whitespace,
   string
 > {
-  return {
-    parse(input, context) {
-      if (UNICODE_WHITESPACE.includes(input.charCodeAt(0))) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: input[0] as Whitespace,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Whitespace,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, Whitespace, ErrorKind.Whitespace, C> => {
+    if (UNICODE_WHITESPACE.includes(input.charCodeAt(0))) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: input[0] as Whitespace,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Whitespace,
+        context,
+      };
+    }
   };
 }
 
-interface TrimParser<O, E> extends IParser<O, E, string> {
-  parser: IParser<O, E, string>;
-}
 /**
  * Trim heading whitespace characters by calling `String.prototype.trim`,
  * then pass the trimmed input to embedded parser.
  *
- *     trim(alpha()).parse(" \f\r\n\ta").output === "a";
+ *     trim(alpha())(" \f\r\n\ta").output === "a";
  *
  * @param parser embedded parser
  */
-export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
-  return {
-    parser,
-    parse(input, context) {
-      return this.parser.parse(input.trimStart(), context);
-    },
-  };
+export function trim<O, E>(
+  parser: IParser<O, E, string>,
+): IParser<O, E, string> {
+  function parse<C>(
+    input: string,
+    context: C = Object.create(null),
+  ): Result<string, O, E, C> {
+    return parse.parser(input.trimStart(), context);
+  }
+  parse.parser = parser;
+
+  return parse;
 }
 
 /**
@@ -295,27 +304,28 @@ export function trim<O, E>(parser: IParser<O, E, string>): TrimParser<O, E> {
  *
  * Input type can be `string` or `Uint8Array`.
  *
- *     eof().parse("").ok === true;
- *     eof().parse(Uint8Array.of()).ok === true;
+ *     eof()("").ok === true;
+ *     eof()(Uint8Array.of()).ok === true;
  */
 export function eof(): IParser<undefined, ErrorKind.EndOfFile, Input> {
-  return {
-    parse(input, context) {
-      if (input.length === 0) {
-        return {
-          ok: true,
-          input,
-          output: undefined,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.EndOfFile,
-          context,
-        };
-      }
-    },
+  return <C>(
+    input: Input,
+    context: C = Object.create(null),
+  ): Result<Input, undefined, ErrorKind.EndOfFile, C> => {
+    if (input.length === 0) {
+      return {
+        ok: true,
+        input,
+        output: undefined,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.EndOfFile,
+        context,
+      };
+    }
   };
 }

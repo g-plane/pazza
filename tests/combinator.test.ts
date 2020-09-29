@@ -4,82 +4,82 @@ import { map, mapErr, optional, satisfy } from "../mod.ts";
 import { ErrorKind } from "../src/error.ts";
 
 Deno.test("map", () => {
-  assertEquals(map(pass(10), (num) => num + 1).parse(""), {
+  assertEquals(map(pass(10), (num) => num + 1)(""), {
     ok: true,
     input: "",
     output: 11,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(map(fail<number>(), (num) => num + 1).parse(""), {
+  assertEquals(map(fail<number>(), (num) => num + 1)(""), {
     ok: false,
     input: "",
     error: "Fake parsing error.",
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("mapErr", () => {
-  assertEquals(mapErr(pass(10), (err) => `Error: ${err}`).parse(""), {
+  assertEquals(mapErr(pass(10), (err) => `Error: ${err}`)(""), {
     ok: true,
     input: "",
     output: 10,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(mapErr(fail<number>(), (err) => `Error: ${err}`).parse(""), {
+  assertEquals(mapErr(fail<number>(), (err) => `Error: ${err}`)(""), {
     ok: false,
     input: "",
     error: "Error: Fake parsing error.",
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("optional", () => {
-  assertEquals(optional(pass("test")).parse(""), {
+  assertEquals(optional(pass("test"))(""), {
     ok: true,
     input: "",
     output: "test",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(optional(fail()).parse(""), {
+  assertEquals(optional(fail())(""), {
     ok: true,
     input: "",
     output: null,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("satisfy", () => {
-  assertEquals(satisfy((item) => item === "a").parse("ab"), {
+  assertEquals(satisfy((item) => item === "a")("ab"), {
     ok: true,
     input: "b",
     output: "a",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(satisfy((item) => item === "a").parse("ba"), {
+  assertEquals(satisfy((item) => item === "a")("ba"), {
     ok: false,
     input: "ba",
     error: ErrorKind.Satisfy,
-    context: undefined,
+    context: {},
   });
 
   assertEquals(
-    satisfy((item: number) => item === 13).parse(Uint8Array.of(13, 10)),
+    satisfy((item: number) => item === 13)(Uint8Array.of(13, 10)),
     {
       ok: true,
       input: Uint8Array.of(10),
       output: 13,
-      context: undefined,
+      context: {},
     },
   );
 
-  assertEquals(satisfy((item: number) => item === 13).parse(Uint8Array.of(8)), {
+  assertEquals(satisfy((item: number) => item === 13)(Uint8Array.of(8)), {
     ok: false,
     input: Uint8Array.of(8),
     error: ErrorKind.Satisfy,
-    context: undefined,
+    context: {},
   });
 });

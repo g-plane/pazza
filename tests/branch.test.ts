@@ -3,63 +3,63 @@ import { pass, fail } from "./_.ts";
 import { or, choice, digit, alpha, map, ErrorKind } from "../mod.ts";
 
 Deno.test("or", () => {
-  assertEquals(or(pass(1), pass(2)).parse(""), {
+  assertEquals(or(pass(1), pass(2))(""), {
     ok: true,
     input: "",
     output: 1,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(or(pass(1), fail()).parse(""), {
+  assertEquals(or(pass(1), fail())(""), {
     ok: true,
     input: "",
     output: 1,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(or(fail(), pass(2)).parse(""), {
+  assertEquals(or(fail(), pass(2))(""), {
     ok: true,
     input: "",
     output: 2,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(or(fail(), fail()).parse(""), {
+  assertEquals(or(fail(), fail())(""), {
     ok: false,
     input: "",
     error: "Fake parsing error.",
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("choice", () => {
   const parser = choice(digit(), alpha());
 
-  assertEquals(parser.parse("1a"), {
+  assertEquals(parser("1a"), {
     ok: true,
     input: "a",
     output: "1",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a1"), {
+  assertEquals(parser("a1"), {
     ok: true,
     input: "1",
     output: "a",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("-1a"), {
+  assertEquals(parser("-1a"), {
     ok: false,
     input: "-1a",
     error: ErrorKind.Alphabet,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(choice(alpha(), map(digit(), Number.parseInt)).parse("5"), {
+  assertEquals(choice(alpha(), map(digit(), Number.parseInt))("5"), {
     ok: true,
     input: "",
     output: 5,
-    context: undefined,
+    context: {},
   });
 });

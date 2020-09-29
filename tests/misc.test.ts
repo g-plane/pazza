@@ -5,10 +5,10 @@ import { lazy } from "../mod.ts";
 Deno.test("lazy", () => {
   const parser = lazy(() => pass("kumiko"));
 
-  assertEquals(parser.parse(""), {
+  assertEquals(parser(""), {
     ok: true,
     input: "",
     output: "kumiko",
-    context: undefined,
+    context: {},
   });
 });

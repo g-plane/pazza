@@ -32,34 +32,34 @@ Deno.test("char", () => {
     "Argument of character parser must be a single character.",
   );
 
-  assertEquals(char("a").parse("ab"), {
+  assertEquals(char("a")("ab"), {
     ok: true,
     input: "b",
     output: "a",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(char("a").parse("b"), {
+  assertEquals(char("a")("b"), {
     ok: false,
     input: "b",
     error: ErrorKind.Char,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("anyChar", () => {
-  assertEquals(anyChar().parse("test"), {
+  assertEquals(anyChar()("test"), {
     ok: true,
     input: "est",
     output: "t",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(anyChar().parse(""), {
+  assertEquals(anyChar()(""), {
     ok: false,
     input: "",
     error: ErrorKind.AnyChar,
-    context: undefined,
+    context: {},
   });
 });
 
@@ -80,19 +80,19 @@ Deno.test("oneOfChars", () => {
   const parser = oneOfChars(...chars);
 
   chars.forEach((char) => {
-    assertEquals(parser.parse(`${char}-`), {
+    assertEquals(parser(`${char}-`), {
       ok: true,
       input: "-",
       output: char,
-      context: undefined,
+      context: {},
     });
   });
 
-  assertEquals(parser.parse("d"), {
+  assertEquals(parser("d"), {
     ok: false,
     input: "d",
     error: ErrorKind.OneOfChars,
-    context: undefined,
+    context: {},
   });
 });
 
@@ -113,19 +113,19 @@ Deno.test("noneOfChars", () => {
   const parser = noneOfChars(...chars);
 
   chars.forEach((char) => {
-    assertEquals(parser.parse(char), {
+    assertEquals(parser(char), {
       ok: false,
       input: char,
       error: ErrorKind.NoneOfChars,
-      context: undefined,
+      context: {},
     });
   });
 
-  assertEquals(parser.parse("d"), {
+  assertEquals(parser("d"), {
     ok: true,
     input: "",
     output: "d",
-    context: undefined,
+    context: {},
   });
 });
 
@@ -158,19 +158,19 @@ Deno.test("escapedWith", () => {
   const parser = escapedWith("\\", chars);
 
   chars.forEach(([char, raw]) => {
-    assertEquals(parser.parse(`\\${char}`), {
+    assertEquals(parser(`\\${char}`), {
       ok: true,
       input: "",
       output: raw,
-      context: undefined,
+      context: {},
     });
   });
 
-  assertEquals(parser.parse("\\t"), {
+  assertEquals(parser("\\t"), {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedWith,
-    context: undefined,
+    context: {},
   });
 });
 
@@ -194,23 +194,23 @@ Deno.test("escapedBy", () => {
       return null;
     }
   });
-  assertEquals(parser1.parse("\\n"), {
+  assertEquals(parser1("\\n"), {
     ok: true,
     input: "",
     output: 10,
-    context: undefined,
+    context: {},
   });
-  assertEquals(parser1.parse("\\t"), {
+  assertEquals(parser1("\\t"), {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedBy,
-    context: undefined,
+    context: {},
   });
-  assertEquals(parser1.parse("\\"), {
+  assertEquals(parser1("\\"), {
     ok: false,
     input: "\\",
     error: ErrorKind.EscapedBy,
-    context: undefined,
+    context: {},
   });
 
   const parser2 = escapedBy("\\", (char) => {
@@ -218,88 +218,88 @@ Deno.test("escapedBy", () => {
       return 10;
     }
   });
-  assertEquals(parser2.parse("\\n"), {
+  assertEquals(parser2("\\n"), {
     ok: true,
     input: "",
     output: 10,
-    context: undefined,
+    context: {},
   });
-  assertEquals(parser2.parse("\\t"), {
+  assertEquals(parser2("\\t"), {
     ok: false,
     input: "\\t",
     error: ErrorKind.EscapedBy,
-    context: undefined,
+    context: {},
   });
-  assertEquals(parser2.parse("\\"), {
+  assertEquals(parser2("\\"), {
     ok: false,
     input: "\\",
     error: ErrorKind.EscapedBy,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("string", () => {
-  assertEquals(string("str").parse("string"), {
+  assertEquals(string("str")("string"), {
     ok: true,
     input: "ing",
     output: "str",
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(string("str").parse(""), {
+  assertEquals(string("str")(""), {
     ok: false,
     input: "",
     error: ErrorKind.String,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("octal", () => {
   for (let i = 0; i <= 7; i += 1) {
     const num = i.toString();
-    assertEquals(octal().parse(num), {
+    assertEquals(octal()(num), {
       ok: true,
       input: "",
       output: num,
-      context: undefined,
+      context: {},
     });
   }
 
-  assertEquals(octal().parse("8"), {
+  assertEquals(octal()("8"), {
     ok: false,
     input: "8",
     error: ErrorKind.Octal,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("digit", () => {
   for (let i = 0; i <= 9; i += 1) {
     const num = i.toString();
-    assertEquals(digit().parse(num), {
+    assertEquals(digit()(num), {
       ok: true,
       input: "",
       output: num,
-      context: undefined,
+      context: {},
     });
   }
 
-  assertEquals(digit().parse("a"), {
+  assertEquals(digit()("a"), {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("hex", () => {
   for (let i = 0; i <= 9; i += 1) {
     const num = i.toString();
-    assertEquals(hex().parse(num), {
+    assertEquals(hex()(num), {
       ok: true,
       input: "",
       output: num,
-      context: undefined,
+      context: {},
     });
   }
 
@@ -307,144 +307,144 @@ Deno.test("hex", () => {
   const upper = lower.map((c) => c.toUpperCase());
 
   lower.forEach((c) => {
-    assertEquals(hex().parse(c), {
+    assertEquals(hex()(c), {
       ok: true,
       input: "",
       output: c,
-      context: undefined,
+      context: {},
     });
   });
 
   upper.forEach((c) => {
-    assertEquals(hex().parse(c), {
+    assertEquals(hex()(c), {
       ok: true,
       input: "",
       output: c,
-      context: undefined,
+      context: {},
     });
   });
 
   lower.forEach((c) => {
-    assertEquals(hex("lower").parse(c), {
+    assertEquals(hex("lower")(c), {
       ok: true,
       input: "",
       output: c,
-      context: undefined,
+      context: {},
     });
   });
 
   upper.forEach((c) => {
-    assertEquals(hex("lower").parse(c), {
+    assertEquals(hex("lower")(c), {
       ok: false,
       input: c,
       error: ErrorKind.LowerHex,
-      context: undefined,
+      context: {},
     });
   });
 
   lower.forEach((c) => {
-    assertEquals(hex("upper").parse(c), {
+    assertEquals(hex("upper")(c), {
       ok: false,
       input: c,
       error: ErrorKind.UpperHex,
-      context: undefined,
+      context: {},
     });
   });
 
   upper.forEach((c) => {
-    assertEquals(hex("upper").parse(c), {
+    assertEquals(hex("upper")(c), {
       ok: true,
       input: "",
       output: c,
-      context: undefined,
+      context: {},
     });
   });
 
-  assertEquals(hex().parse("h"), {
+  assertEquals(hex()("h"), {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(hex("upper").parse("h"), {
+  assertEquals(hex("upper")("h"), {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(hex("lower").parse("h"), {
+  assertEquals(hex("lower")("h"), {
     ok: false,
     input: "h",
     error: ErrorKind.Hex,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("alpha", () => {
   for (let i = 65; i <= 90; i += 1) {
     const char = String.fromCharCode(i);
-    assertEquals(alpha().parse(char), {
+    assertEquals(alpha()(char), {
       ok: true,
       input: "",
       output: char,
-      context: undefined,
+      context: {},
     });
   }
 
   for (let i = 97; i <= 122; i += 1) {
     const char = String.fromCharCode(i);
-    assertEquals(alpha().parse(char), {
+    assertEquals(alpha()(char), {
       ok: true,
       input: "",
       output: char,
-      context: undefined,
+      context: {},
     });
   }
 
-  assertEquals(alpha().parse("5"), {
+  assertEquals(alpha()("5"), {
     ok: false,
     input: "5",
     error: ErrorKind.Alphabet,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("lower", () => {
   for (let i = 97; i <= 122; i += 1) {
     const char = String.fromCharCode(i);
-    assertEquals(lower().parse(char), {
+    assertEquals(lower()(char), {
       ok: true,
       input: "",
       output: char,
-      context: undefined,
+      context: {},
     });
   }
 
-  assertEquals(lower().parse("A"), {
+  assertEquals(lower()("A"), {
     ok: false,
     input: "A",
     error: ErrorKind.LowerAlphabet,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("upper", () => {
   for (let i = 65; i <= 90; i += 1) {
     const char = String.fromCharCode(i);
-    assertEquals(upper().parse(char), {
+    assertEquals(upper()(char), {
       ok: true,
       input: "",
       output: char,
-      context: undefined,
+      context: {},
     });
   }
 
-  assertEquals(upper().parse("a"), {
+  assertEquals(upper()("a"), {
     ok: false,
     input: "a",
     error: ErrorKind.UpperAlphabet,
-    context: undefined,
+    context: {},
   });
 });

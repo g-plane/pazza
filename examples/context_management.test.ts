@@ -6,6 +6,8 @@ import {
   Context,
   contextedParserWithImmer,
   contextedParserWithUnistore,
+  parserContext,
+  createUnistoreContext,
 } from "./context_management.ts";
 
 const text = "[1,2,2,4,6,3,6,3,9,3,2,3,7,5,3]";
@@ -24,7 +26,7 @@ Deno.test("contextManagement", () => {
     "9": 0,
   };
 
-  const result1 = contextedParserWithImmer().parse(text);
+  const result1 = contextedParserWithImmer()(text, parserContext);
   assertNotStrictEquals(result1.context, context);
   assertEquals(result1, {
     ok: true,
@@ -60,7 +62,7 @@ Deno.test("contextManagement", () => {
     },
   });
 
-  const result2 = contextedParserWithUnistore().parse(text);
+  const result2 = contextedParserWithUnistore()(text, createUnistoreContext());
   assertNotStrictEquals(result2.context.getState(), context);
   assertEquals({ ...result2, context: result2.context.getState() }, {
     ok: true,

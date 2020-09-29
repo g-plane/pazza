@@ -1,4 +1,4 @@
-import type { IParser, Input } from "./core.ts";
+import type { IParser, IAlwaysOkParser, Input, Ok, Result } from "./core.ts";
 import { ErrorKind } from "./error.ts";
 
 /**
@@ -6,25 +6,30 @@ import { ErrorKind } from "./error.ts";
  * If it succeeds, apply provided function on the output.
  *
  *     const parser = map(digit(), value => Number.parseInt(value));
- *     parser.parse("5").output === 5;
+ *     parser("5").output === 5;
  *
  * @param parser embededd parser
  * @param fn function to be applied on successful output
  */
-export function map<T, U, E, I extends Input>(
-  parser: IParser<T, E, I>,
-  fn: (arg: T) => U,
-): IParser<U, E, I> {
-  return {
-    parse(input, context) {
-      const result = parser.parse(input, context);
-      if (result.ok) {
-        return { ...result, output: fn(result.output) };
-      } else {
-        return result;
-      }
-    },
-  };
+export function map<T, U, E, I extends Input, CtxIn, CtxOut>(
+  parser: IParser<T, E, I, CtxIn, CtxOut>,
+  fn: (output: T) => U,
+): IParser<U, E, I, CtxIn, CtxOut> {
+  function parse<C extends CtxIn>(
+    input: I,
+    context: C = Object.create(null),
+  ): Result<I, U, E, C & CtxOut> {
+    const result = parse.parser(input, context);
+    if (result.ok) {
+      return { ...result, output: parse.fn(result.output) };
+    } else {
+      return result;
+    }
+  }
+  parse.parser = parser;
+  parse.fn = fn;
+
+  return parse;
 }
 
 /**
@@ -32,25 +37,30 @@ export function map<T, U, E, I extends Input>(
  * If it fails, apply provided function on the error.
  *
  *     const parser = map(digit(), error => "Not a digit.");
- *     parser.parse("a").error === "Not a digit.";
+ *     parser("a").error === "Not a digit.";
  *
  * @param parser embededd parser
  * @param fn function to be applied on error
  */
-export function mapErr<T, E1, E2, I extends Input>(
-  parser: IParser<T, E1, I>,
+export function mapErr<T, E1, E2, I extends Input, CtxIn, CtxOut>(
+  parser: IParser<T, E1, I, CtxIn, CtxOut>,
   fn: (error: E1) => E2,
-): IParser<T, E2, I> {
-  return {
-    parse(input, context) {
-      const result = parser.parse(input, context);
-      if (result.ok) {
-        return result;
-      } else {
-        return { ...result, error: fn(result.error) };
-      }
-    },
-  };
+): IParser<T, E2, I, CtxIn, CtxOut> {
+  function parse<C extends CtxIn>(
+    input: I,
+    context: C = Object.create(null),
+  ): Result<I, T, E2, C & CtxOut> {
+    const result = parse.parser(input, context);
+    if (result.ok) {
+      return result;
+    } else {
+      return { ...result, error: parse.fn(result.error) };
+    }
+  }
+  parse.parser = parser;
+  parse.fn = fn;
+
+  return parse;
 }
 
 /**
@@ -58,30 +68,34 @@ export function mapErr<T, E1, E2, I extends Input>(
  * If it succeeds, return its value.
  * If it fails, return `null` with a successful result.
  *
- *     const result = optional(digit()).parse("a");
+ *     const result = optional(digit())("a");
  *     result.ok === true;
  *     result.output === null;
  *
  * @param parser embedded parser
  */
-export function optional<T, I extends Input>(
-  parser: IParser<T, unknown, I>,
-): IParser<T | null, never, I> {
-  return {
-    parse(input, context) {
-      const result = parser.parse(input, context);
-      if (result.ok) {
-        return result;
-      } else {
-        return {
-          ok: true,
-          input,
-          output: null,
-          context: result.context,
-        };
-      }
-    },
-  };
+export function optional<T, I extends Input, CtxIn, CtxOut>(
+  parser: IParser<T, unknown, I, CtxIn, CtxOut>,
+): IAlwaysOkParser<T | null, I, CtxIn, CtxOut> {
+  function parse<C extends CtxIn>(
+    input: I,
+    context: C = Object.create(null),
+  ): Ok<I, T | null, C & CtxOut> {
+    const result = parse.parser(input, context);
+    if (result.ok) {
+      return result;
+    } else {
+      return {
+        ok: true,
+        input,
+        output: null,
+        context: result.context,
+      };
+    }
+  }
+  parse.parser = parser;
+
+  return parse;
 }
 
 /**
@@ -89,52 +103,53 @@ export function optional<T, I extends Input>(
  * If the predicate passes, return a successful parsing result with that character.
  * If not, return a parsing error.
  *
- *     satisfy((char) => char === "a").parse("a").output === "a";
- *     satisfy((char) => char === "a").parse("b").ok === false;
+ *     satisfy((char) => char === "a")("a").output === "a";
+ *     satisfy((char) => char === "a")("b").ok === false;
  *
  * @param predicate predicate which tests next character
  */
-export function satisfy<P extends (item: string) => boolean>(
-  predicate: P,
-): IParser<string, ErrorKind.Satisfy, string> & { predicate: P };
+export function satisfy<I extends string>(
+  predicate: (item: I[0]) => boolean,
+): IParser<I[0], ErrorKind.Satisfy, I>;
 /**
  * Pick next byte from input and pass it to provided predicate.
  * If the predicate passes, return a successful parsing result with that byte.
  * If not, return a parsing error.
  *
- *     satisfy((byte) => byte === 10).parse(Uint8Array.of(10)).output === 10;
- *     satisfy((byte) => byte === 10).parse(Uint8Array.of(13)).ok === false;
+ *     satisfy((byte) => byte === 10)(Uint8Array.of(10)).output === 10;
+ *     satisfy((byte) => byte === 10)(Uint8Array.of(13)).ok === false;
  *
  * @param predicate predicate which tests next byte (8-bit unsigned integer)
  */
-export function satisfy<P extends (item: number) => boolean>(
-  predicate: P,
-): IParser<number, ErrorKind.Satisfy, Uint8Array> & { predicate: P };
+export function satisfy<I extends Uint8Array>(
+  predicate: (item: I[0]) => boolean,
+): IParser<I[0], ErrorKind.Satisfy, I>;
 export function satisfy(
-  predicate: (item: string | number) => boolean,
-): IParser<string | number, ErrorKind.Satisfy, Input> & {
-  predicate(item: string | number): boolean;
-} {
-  return {
-    predicate,
-    parse<C>(input: Input, context?: C) {
-      const first = input[0];
+  predicate: (item: Input[0]) => boolean,
+): IParser<Input[0], ErrorKind.Satisfy, Input> {
+  function parse<C>(
+    input: Input,
+    context: C = Object.create(null),
+  ): Result<Input, Input[0], ErrorKind.Satisfy, C> {
+    const first = input[0];
 
-      if (this.predicate(first)) {
-        return {
-          ok: true,
-          input: input.slice(1),
-          output: first,
-          context,
-        };
-      } else {
-        return {
-          ok: false,
-          input,
-          error: ErrorKind.Satisfy,
-          context,
-        };
-      }
-    },
-  };
+    if (parse.predicate(first)) {
+      return {
+        ok: true,
+        input: input.slice(1),
+        output: first,
+        context,
+      };
+    } else {
+      return {
+        ok: false,
+        input,
+        error: ErrorKind.Satisfy,
+        context,
+      };
+    }
+  }
+  parse.predicate = predicate;
+
+  return parse;
 }

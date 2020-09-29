@@ -1,4 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertThrows,
+} from "https://deno.land/std@0.70.0/testing/asserts.ts";
 import {
   many,
   many0,
@@ -16,390 +19,401 @@ import {
 Deno.test("many", () => {
   const parser = many(digit(), 2, 3);
 
-  assertEquals(parser.parse("1a"), {
+  assertEquals(parser("1a"), {
     ok: false,
     input: "a",
     error: {
       kind: ErrorKind.Many,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("12"), {
+  assertEquals(parser("12"), {
     ok: true,
     input: "",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("123"), {
+  assertEquals(parser("123"), {
     ok: true,
     input: "",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1234"), {
+  assertEquals(parser("1234"), {
     ok: true,
     input: "4",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 0, Infinity).parse(""), {
+  assertEquals(many(digit(), 0, Infinity)(""), {
     ok: true,
     input: "",
     output: [],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 0, Infinity).parse("1234"), {
+  assertEquals(many(digit(), 0, Infinity)("1234"), {
     ok: true,
     input: "",
     output: ["1", "2", "3", "4"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 2, 2).parse("1"), {
+  assertEquals(many(digit(), 2, 2)("1"), {
     ok: false,
     input: "",
     error: {
       kind: ErrorKind.Many,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 2, 2).parse("12"), {
+  assertEquals(many(digit(), 2, 2)("12"), {
     ok: true,
     input: "",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 2, 2).parse("123"), {
+  assertEquals(many(digit(), 2, 2)("123"), {
     ok: true,
     input: "3",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(many(digit(), 3, 2).parse("12"), {
-    ok: true,
-    input: "",
-    output: ["1", "2"],
-    context: undefined,
-  });
+  assertThrows(
+    () => many(digit(), 3, 2),
+    RangeError,
+    "Maximum value must be greater than minimum value.",
+  );
 });
 
 Deno.test("many0", () => {
   const parser = many0(digit());
 
-  assertEquals(parser.parse("123a"), {
+  assertEquals(parser("123a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a"), {
+  assertEquals(parser("a"), {
     ok: true,
     input: "a",
     output: [],
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("many1", () => {
   const parser = many1(digit());
 
-  assertEquals(parser.parse("123a"), {
+  assertEquals(parser("123a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a"), digit().parse("a"));
+  assertEquals(parser("a"), digit()("a"));
 });
 
 Deno.test("manyUntil", () => {
   const parser = manyUntil(digit(), char("."));
 
-  assertEquals(parser.parse("."), {
+  assertEquals(parser("."), {
     ok: true,
     input: ".",
     output: [],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("123.abc"), {
+  assertEquals(parser("123.abc"), {
     ok: true,
     input: ".abc",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("123abc.abc"), {
+  assertEquals(parser("123abc.abc"), {
     ok: false,
     input: "abc.abc",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("sepBy", () => {
-  assertEquals(sepBy(char(","), digit()).parse("a"), {
+  assertEquals(sepBy(char(","), digit())("a"), {
     ok: true,
     input: "a",
     output: [],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit()).parse("1a"), {
+  assertEquals(sepBy(char(","), digit())("1a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit()).parse("1,a"), {
+  assertEquals(sepBy(char(","), digit())("1,a"), {
     ok: true,
     input: ",a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit()).parse("1,2a"), {
+  assertEquals(sepBy(char(","), digit())("1,2a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 2).parse("1,2a"), {
+  assertEquals(sepBy(char(","), digit(), 2)("1,2a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 2).parse("1,2,3a"), {
+  assertEquals(sepBy(char(","), digit(), 2)("1,2,3a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 2).parse("1a"), {
+  assertEquals(sepBy(char(","), digit(), 2)("1a"), {
     ok: false,
     input: "a",
     error: {
       kind: ErrorKind.SepBy,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 2).parse("1,a"), {
+  assertEquals(sepBy(char(","), digit(), 2)("1,a"), {
     ok: false,
     input: ",a",
     error: {
       kind: ErrorKind.SepBy,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 1, 2).parse("1,2a"), {
+  assertEquals(sepBy(char(","), digit(), 1, 2)("1,2a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepBy(char(","), digit(), 1, 2).parse("1,2,3a"), {
+  assertEquals(sepBy(char(","), digit(), 1, 2)("1,2,3a"), {
     ok: true,
     input: ",3a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
+
+  assertThrows(
+    () => sepBy(char(","), digit(), 3, 2),
+    RangeError,
+    "Maximum value must be greater than minimum value.",
+  );
 });
 
 Deno.test("sepBy1", () => {
   const parser = sepBy1(char(","), digit());
 
-  assertEquals(parser.parse("1a"), {
+  assertEquals(parser("1a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1,a"), {
+  assertEquals(parser("1,a"), {
     ok: true,
     input: ",a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1,2,3a"), {
+  assertEquals(parser("1,2,3a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a"), {
+  assertEquals(parser("a"), {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });
 
 Deno.test("sepEndBy", () => {
-  assertEquals(sepEndBy(char(","), digit()).parse("a"), {
+  assertEquals(sepEndBy(char(","), digit())("a"), {
     ok: true,
     input: "a",
     output: [],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit()).parse(",a"), {
+  assertEquals(sepEndBy(char(","), digit())(",a"), {
     ok: true,
     input: ",a",
     output: [],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit()).parse("1a"), {
+  assertEquals(sepEndBy(char(","), digit())("1a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit()).parse("1,a"), {
+  assertEquals(sepEndBy(char(","), digit())("1,a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit()).parse("1,2a"), {
+  assertEquals(sepEndBy(char(","), digit())("1,2a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1,2a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1,2,a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,3a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1,2,3a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,2,3,a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1,2,3,a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1a"), {
     ok: false,
     input: "a",
     error: {
       kind: ErrorKind.SepEndBy,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 2).parse("1,a"), {
+  assertEquals(sepEndBy(char(","), digit(), 2)("1,a"), {
     ok: false,
     input: "a",
     error: {
       kind: ErrorKind.SepEndBy,
       output: ["1"],
     },
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 1, 2).parse("1,2,a"), {
+  assertEquals(sepEndBy(char(","), digit(), 1, 2)("1,2,a"), {
     ok: true,
     input: "a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(sepEndBy(char(","), digit(), 1, 2).parse("1,2,3a"), {
+  assertEquals(sepEndBy(char(","), digit(), 1, 2)("1,2,3a"), {
     ok: true,
     input: "3a",
     output: ["1", "2"],
-    context: undefined,
+    context: {},
   });
+
+  assertThrows(
+    () => sepEndBy(char(","), digit(), 3, 2),
+    RangeError,
+    "Maximum value must be greater than minimum value.",
+  );
 });
 
 Deno.test("sepEndBy1", () => {
   const parser = sepEndBy1(char(","), digit());
 
-  assertEquals(parser.parse("1a"), {
+  assertEquals(parser("1a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1,a"), {
+  assertEquals(parser("1,a"), {
     ok: true,
     input: "a",
     output: ["1"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1,2,3a"), {
+  assertEquals(parser("1,2,3a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("1,2,3,a"), {
+  assertEquals(parser("1,2,3,a"), {
     ok: true,
     input: "a",
     output: ["1", "2", "3"],
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse("a"), {
+  assertEquals(parser("a"), {
     ok: false,
     input: "a",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 
-  assertEquals(parser.parse(",a"), {
+  assertEquals(parser(",a"), {
     ok: false,
     input: ",a",
     error: ErrorKind.Digit,
-    context: undefined,
+    context: {},
   });
 });

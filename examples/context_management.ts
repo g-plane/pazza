@@ -2,7 +2,6 @@ import produce from "https://cdn.skypack.dev/immer?dts";
 import createStore from "https://cdn.skypack.dev/unistore?dts";
 import type { Store } from "https://cdn.skypack.dev/unistore?dts";
 import {
-  context,
   between,
   sepBy,
   digit,
@@ -14,7 +13,7 @@ import {
 type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 export type Context = Record<Digit, number>;
 
-const parserContext: Context = {
+export const parserContext: Context = {
   "0": 0,
   "1": 0,
   "2": 0,
@@ -40,25 +39,23 @@ function parseDigitWithImmer(): IParser<
   string,
   Context
 > {
-  return {
-    parse(input, context) {
-      const result = digit().parse(input, context);
-      if (!result.ok) {
-        return result;
-      }
+  return (input: string, context: Context = parserContext) => {
+    const result = digit()(input, context);
+    if (!result.ok) {
+      return result;
+    }
 
-      // We use Immer here to create an immutable parser context.
-      context = produce(result.context!, (draft) => {
-        draft[result.output] += 1;
-      });
+    // We use Immer here to create an immutable parser context.
+    context = produce(result.context, (draft) => {
+      draft[result.output] += 1;
+    });
 
-      return { ...result, context };
-    },
+    return { ...result, context };
   };
 }
 
-export function contextedParserWithImmer(ctx = parserContext) {
-  return context(ctx, parseDigitArray(parseDigitWithImmer));
+export function contextedParserWithImmer() {
+  return parseDigitArray(parseDigitWithImmer);
 }
 //#endregion
 
@@ -73,22 +70,27 @@ function parseDigitWithUnistore(): IParser<
   string,
   Store<Context>
 > {
-  return {
-    parse(input, context) {
-      const result = digit().parse(input, context);
-      if (!result.ok) {
-        return result;
-      }
+  return (
+    input: string,
+    context: Store<Context> = createStore(parserContext),
+  ) => {
+    const result = digit()(input, context);
+    if (!result.ok) {
+      return result;
+    }
 
-      const key = result.output;
-      context!.action((state) => ({ [key]: state[key] + 1 }))();
+    const key = result.output;
+    context!.action((state) => ({ [key]: state[key] + 1 }))();
 
-      return { ...result, context };
-    },
+    return { ...result, context };
   };
 }
 
-export function contextedParserWithUnistore(ctx = parserContext) {
-  return context(createStore(ctx), parseDigitArray(parseDigitWithUnistore));
+export function contextedParserWithUnistore() {
+  return parseDigitArray(parseDigitWithUnistore);
+}
+
+export function createUnistoreContext() {
+  return createStore(parserContext);
 }
 //#endregion
