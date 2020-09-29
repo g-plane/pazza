@@ -1,6 +1,6 @@
 {
   "name": "pazza",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Modern and tree-shakable parser combinators library.",
   "author": "Pig Fang <g-plane@hotmail.com>",
   "repository": "g-plane/pazza",
