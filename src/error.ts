@@ -30,4 +30,5 @@ export enum ErrorKind {
   SepBy,
   SepEndBy,
   Satisfy,
+  MissingPositionContext,
 }
