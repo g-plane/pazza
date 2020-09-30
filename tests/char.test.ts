@@ -238,22 +238,6 @@ Deno.test("escapedBy", () => {
   });
 });
 
-Deno.test("string", () => {
-  assertEquals(string("str")("string"), {
-    ok: true,
-    input: "ing",
-    output: "str",
-    context: {},
-  });
-
-  assertEquals(string("str")(""), {
-    ok: false,
-    input: "",
-    error: ErrorKind.String,
-    context: {},
-  });
-});
-
 Deno.test("octal", () => {
   for (let i = 0; i <= 7; i += 1) {
     const num = i.toString();

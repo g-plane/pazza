@@ -9,3 +9,4 @@ export * from "./src/multi.ts";
 export * from "./src/position.ts";
 export * from "./src/sequence.ts";
 export * from "./src/space.ts";
+export * from "./src/string.ts";
