@@ -29,6 +29,9 @@ type PositionContext = {
  * This parser is required if you're going to
  * use `position` parser or `spanned` parser.
  *
+ *     withPositionCtx(position());
+ *     withPositionCtx(spanned(myParser));
+ *
  * @param parser embedded parser
  */
 export function withPositionCtx<O, E, CtxIn, CtxOut>(
@@ -66,6 +69,17 @@ export function withPositionCtx<O, E, CtxIn, CtxOut>(
  * Retrieve current position, stored as parser output.
  *
  * This parser requires "position context".
+ *
+ *     const result = withPositionCtx(position())("", {});
+ *     result.output;
+ *     // the output will be:
+ *     (
+ *     {
+ *         "offset": 0,
+ *         "line": 1,
+ *         "column": 0
+ *     }
+ *     )
  */
 export function position(): IParser<
   Position,
@@ -143,6 +157,25 @@ export type Span<T> = {
  * It will return a `Span<T>` wrapper type, if succeeds.
  *
  * This parser requires "position context".
+ *
+ *     const result = withPositionCtx(spanned(string("abc")))("abc", {});
+ *     result.output;
+ *     // the output will be:
+ *     (
+ *     {
+ *       "value": "abc",
+ *       "start": {
+ *         "offset": 0,
+ *         "line": 1,
+ *         "column": 0
+ *       },
+ *       "end": {
+ *         "offset": 3,
+ *         "line": 1,
+ *         "column": 3
+ *       }
+ *     }
+ *     )
  *
  * @param parser embedded parser
  */
