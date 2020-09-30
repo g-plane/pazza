@@ -4,7 +4,7 @@ import type { IParser, Input, Result } from "./core.ts";
  * Construct a parser only when it's needed.
  * This is useful when building a recursive parser.
  *
- *     // We don't call the `parse` method,
+ *     // We don't call the parser,
  *     // so the `recursiveParser` won't be constructed.
  *     lazy(() => recursiveParser());
  *
