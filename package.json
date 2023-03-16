@@ -35,6 +35,7 @@
     "prettier": "^2.8.4",
     "typescript": "^4.9.5",
     "unistore": "^3.5.2",
+    "vite": "^4.1.4",
     "vitest": "^0.29.3"
   }
 }
