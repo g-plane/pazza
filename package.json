@@ -15,7 +15,7 @@
     "prepublishOnly": "pnpm build",
     "test": "vitest",
     "fmt": "prettier --write src tests examples",
-    "fmt:check": "prettier --check src test examples"
+    "fmt:check": "prettier --check src tests examples"
   },
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
