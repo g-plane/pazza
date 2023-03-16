@@ -1,85 +1,84 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { pass, fail } from "./_.ts";
-import { map, mapErr, optional, satisfy } from "../mod.ts";
-import { ErrorKind } from "../src/error.ts";
+import { test, expect } from 'vitest'
+import { pass, fail } from './_'
+import { map, mapErr, optional, satisfy } from '../src'
+import { ErrorKind } from '../src/error'
 
-Deno.test("map", () => {
-  assertEquals(map(pass(10), (num) => num + 1)(""), {
+test('map', () => {
+  expect(map(pass(10), (num) => num + 1)('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 11,
     context: {},
-  });
+  })
 
-  assertEquals(map(fail<number>(), (num) => num + 1)(""), {
+  expect(map(fail<number>(), (num) => num + 1)('')).toEqual({
     ok: false,
-    input: "",
-    error: "Fake parsing error.",
+    input: '',
+    error: 'Fake parsing error.',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("mapErr", () => {
-  assertEquals(mapErr(pass(10), (err) => `Error: ${err}`)(""), {
+test('mapErr', () => {
+  expect(mapErr(pass(10), (err) => `Error: ${err}`)('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 10,
     context: {},
-  });
+  })
 
-  assertEquals(mapErr(fail<number>(), (err) => `Error: ${err}`)(""), {
+  expect(mapErr(fail<number>(), (err) => `Error: ${err}`)('')).toEqual({
     ok: false,
-    input: "",
-    error: "Error: Fake parsing error.",
+    input: '',
+    error: 'Error: Fake parsing error.',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("optional", () => {
-  assertEquals(optional(pass("test"))(""), {
+test('optional', () => {
+  expect(optional(pass('test'))('')).toEqual({
     ok: true,
-    input: "",
-    output: "test",
+    input: '',
+    output: 'test',
     context: {},
-  });
+  })
 
-  assertEquals(optional(fail())(""), {
+  expect(optional(fail())('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: null,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("satisfy", () => {
-  assertEquals(satisfy((item) => item === "a")("ab"), {
+test('satisfy', () => {
+  expect(satisfy((item) => item === 'a')('ab')).toEqual({
     ok: true,
-    input: "b",
-    output: "a",
+    input: 'b',
+    output: 'a',
     context: {},
-  });
+  })
 
-  assertEquals(satisfy((item) => item === "a")("ba"), {
+  expect(satisfy((item) => item === 'a')('ba')).toEqual({
     ok: false,
-    input: "ba",
+    input: 'ba',
     error: ErrorKind.Satisfy,
     context: {},
-  });
+  })
 
-  assertEquals(
-    satisfy((item: number) => item === 13)(Uint8Array.of(13, 10)),
+  expect(satisfy((item: number) => item === 13)(Uint8Array.of(13, 10))).toEqual(
     {
       ok: true,
       input: Uint8Array.of(10),
       output: 13,
       context: {},
-    },
-  );
+    }
+  )
 
-  assertEquals(satisfy((item: number) => item === 13)(Uint8Array.of(8)), {
+  expect(satisfy((item: number) => item === 13)(Uint8Array.of(8))).toEqual({
     ok: false,
     input: Uint8Array.of(8),
     error: ErrorKind.Satisfy,
     context: {},
-  });
-});
+  })
+})

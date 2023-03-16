@@ -1,68 +1,68 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { string, string0, string1, digit, ErrorKind } from "../mod.ts";
+import { test, expect } from 'vitest'
+import { string, string0, string1, digit, ErrorKind } from '../src'
 
-Deno.test("string", () => {
-  assertEquals(string("str")("string"), {
+test('string', () => {
+  expect(string('str')('string')).toEqual({
     ok: true,
-    input: "ing",
-    output: "str",
+    input: 'ing',
+    output: 'str',
     context: {},
-  });
+  })
 
-  assertEquals(string("str")(""), {
+  expect(string('str')('')).toEqual({
     ok: false,
-    input: "",
+    input: '',
     error: ErrorKind.String,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("string0", () => {
-  const parser = string0(digit());
+test('string0', () => {
+  const parser = string0(digit())
 
-  assertEquals(parser("123abc"), {
+  expect(parser('123abc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "123",
+    input: 'abc',
+    output: '123',
     context: {},
-  });
+  })
 
-  assertEquals(parser("a"), {
+  expect(parser('a')).toEqual({
     ok: true,
-    input: "a",
-    output: "",
+    input: 'a',
+    output: '',
     context: {},
-  });
+  })
 
-  assertEquals(parser(""), {
+  expect(parser('')).toEqual({
     ok: true,
-    input: "",
-    output: "",
+    input: '',
+    output: '',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("string1", () => {
-  const parser = string1(digit());
+test('string1', () => {
+  const parser = string1(digit())
 
-  assertEquals(parser("123abc"), {
+  expect(parser('123abc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "123",
+    input: 'abc',
+    output: '123',
     context: {},
-  });
+  })
 
-  assertEquals(parser("a"), {
+  expect(parser('a')).toEqual({
     ok: false,
-    input: "a",
+    input: 'a',
     error: ErrorKind.Digit,
     context: {},
-  });
+  })
 
-  assertEquals(parser(""), {
+  expect(parser('')).toEqual({
     ok: false,
-    input: "",
+    input: '',
     error: ErrorKind.Digit,
     context: {},
-  });
-});
+  })
+})

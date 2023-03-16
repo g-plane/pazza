@@ -1,14 +1,14 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { pass } from "./_.ts";
-import { lazy } from "../mod.ts";
+import { test, expect } from 'vitest'
+import { pass } from './_'
+import { lazy } from '../src'
 
-Deno.test("lazy", () => {
-  const parser = lazy(() => pass("kumiko"));
+test('lazy', () => {
+  const parser = lazy(() => pass('kumiko'))
 
-  assertEquals(parser(""), {
+  expect(parser('')).toEqual({
     ok: true,
-    input: "",
-    output: "kumiko",
+    input: '',
+    output: 'kumiko',
     context: {},
-  });
-});
+  })
+})

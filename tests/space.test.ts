@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
+import { test, expect } from 'vitest'
 import {
   space,
   cr,
@@ -11,193 +11,193 @@ import {
   eof,
   alpha,
   ErrorKind,
-} from "../mod.ts";
+} from '../src'
 
-Deno.test("space", () => {
-  assertEquals(space()("  "), {
+test('space', () => {
+  expect(space()('  ')).toEqual({
     ok: true,
-    input: " ",
-    output: " ",
+    input: ' ',
+    output: ' ',
     context: {},
-  });
+  })
 
-  assertEquals(space()("\n"), {
+  expect(space()('\n')).toEqual({
     ok: false,
-    input: "\n",
+    input: '\n',
     error: ErrorKind.Space,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("cr", () => {
-  assertEquals(cr()("\rabc"), {
+test('cr', () => {
+  expect(cr()('\rabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\r",
+    input: 'abc',
+    output: '\r',
     context: {},
-  });
+  })
 
-  assertEquals(cr()("\nabc"), {
+  expect(cr()('\nabc')).toEqual({
     ok: false,
-    input: "\nabc",
+    input: '\nabc',
     error: ErrorKind.CarriageReturn,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("lf", () => {
-  assertEquals(lf()("\nabc"), {
+test('lf', () => {
+  expect(lf()('\nabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\n",
+    input: 'abc',
+    output: '\n',
     context: {},
-  });
+  })
 
-  assertEquals(lf()("\rabc"), {
+  expect(lf()('\rabc')).toEqual({
     ok: false,
-    input: "\rabc",
+    input: '\rabc',
     error: ErrorKind.LineFeed,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("crlf", () => {
-  assertEquals(crlf()("\r\nabc"), {
+test('crlf', () => {
+  expect(crlf()('\r\nabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\r\n",
+    input: 'abc',
+    output: '\r\n',
     context: {},
-  });
+  })
 
-  assertEquals(crlf()("\nabc"), {
+  expect(crlf()('\nabc')).toEqual({
     ok: false,
-    input: "\nabc",
+    input: '\nabc',
     error: ErrorKind.CarriageReturnLineFeed,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("linebreak", () => {
-  assertEquals(linebreak()("\r\nabc"), {
+test('linebreak', () => {
+  expect(linebreak()('\r\nabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\r\n",
+    input: 'abc',
+    output: '\r\n',
     context: {},
-  });
+  })
 
-  assertEquals(linebreak()("\nabc"), {
+  expect(linebreak()('\nabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\n",
+    input: 'abc',
+    output: '\n',
     context: {},
-  });
+  })
 
-  assertEquals(linebreak()("\rabc"), {
+  expect(linebreak()('\rabc')).toEqual({
     ok: false,
-    input: "\rabc",
+    input: '\rabc',
     error: ErrorKind.Linebreak,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("tab", () => {
-  assertEquals(tab()("\tabc"), {
+test('tab', () => {
+  expect(tab()('\tabc')).toEqual({
     ok: true,
-    input: "abc",
-    output: "\t",
+    input: 'abc',
+    output: '\t',
     context: {},
-  });
+  })
 
-  assertEquals(tab()(" abc"), {
+  expect(tab()(' abc')).toEqual({
     ok: false,
-    input: " abc",
+    input: ' abc',
     error: ErrorKind.Tab,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("whitespace", () => {
+test('whitespace', () => {
   const unicodeWhitespace = [
-    "\u0009",
-    "\u000A",
-    "\u000B",
-    "\u000C",
-    "\u000D",
-    "\u0020",
-    "\u0085",
-    "\u00A0",
-    "\u1680",
-    "\u2000",
-    "\u2001",
-    "\u2002",
-    "\u2003",
-    "\u2004",
-    "\u2005",
-    "\u2006",
-    "\u2007",
-    "\u2008",
-    "\u2009",
-    "\u200A",
-    "\u2028",
-    "\u2029",
-    "\u202F",
-    "\u205F",
-    "\u3000",
-  ];
+    '\u0009',
+    '\u000A',
+    '\u000B',
+    '\u000C',
+    '\u000D',
+    '\u0020',
+    '\u0085',
+    '\u00A0',
+    '\u1680',
+    '\u2000',
+    '\u2001',
+    '\u2002',
+    '\u2003',
+    '\u2004',
+    '\u2005',
+    '\u2006',
+    '\u2007',
+    '\u2008',
+    '\u2009',
+    '\u200A',
+    '\u2028',
+    '\u2029',
+    '\u202F',
+    '\u205F',
+    '\u3000',
+  ]
 
   unicodeWhitespace.forEach((char) => {
-    assertEquals(whitespace()(char), {
+    expect(whitespace()(char)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: char,
       context: {},
-    });
-  });
+    })
+  })
 
-  assertEquals(whitespace()("\uFEFF"), {
+  expect(whitespace()('\uFEFF')).toEqual({
     ok: false,
-    input: "\uFEFF",
+    input: '\uFEFF',
     error: ErrorKind.Whitespace,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("trim", () => {
-  const result = trim(alpha())("  \n  \t  \r  \f  abc");
-  assertEquals(result, {
+test('trim', () => {
+  const result = trim(alpha())('  \n  \t  \r  \f  abc')
+  expect(result).toEqual({
     ok: true,
-    input: "bc",
-    output: "a",
+    input: 'bc',
+    output: 'a',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("eof", () => {
-  assertEquals(eof()(""), {
+test('eof', () => {
+  expect(eof()('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: undefined,
     context: {},
-  });
+  })
 
-  assertEquals(eof()("t"), {
+  expect(eof()('t')).toEqual({
     ok: false,
-    input: "t",
+    input: 't',
     error: ErrorKind.EndOfFile,
     context: {},
-  });
+  })
 
-  assertEquals(eof()(Uint8Array.of()), {
+  expect(eof()(Uint8Array.of())).toEqual({
     ok: true,
     input: Uint8Array.of(),
     output: undefined,
     context: {},
-  });
+  })
 
-  assertEquals(eof()(Uint8Array.of(65)), {
+  expect(eof()(Uint8Array.of(65))).toEqual({
     ok: false,
     input: Uint8Array.of(65),
     error: ErrorKind.EndOfFile,
     context: {},
-  });
-});
+  })
+})

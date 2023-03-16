@@ -1,0 +1,9 @@
+{
+  "extends": "@gplane/tsconfig",
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2021",
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src"]
+}

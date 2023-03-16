@@ -1,7 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { jsonValue } from "./json.ts";
+import { test, expect } from 'vitest'
+import { jsonValue } from './json'
 
-Deno.test("jsonParser", () => {
+test('jsonParser', () => {
   const result = jsonValue()(`
     [
       2,
@@ -15,23 +15,23 @@ Deno.test("jsonParser", () => {
         "c": null
       }
     ]
-  `);
+  `)
 
-  assertEquals(result, {
+  expect(result).toEqual({
     ok: true,
-    input: "\n  ",
+    input: '\n  ',
     output: [
       2,
       -43.21,
       true,
-      "test",
+      'test',
       '\n"\t',
       false,
       {
-        "a": "b",
-        "c": null,
+        a: 'b',
+        c: null,
       },
     ],
     context: {},
-  });
-});
+  })
+})

@@ -1,4 +1,4 @@
-import type { IParser, Input, Result } from "./core.ts";
+import type { IParser, Input, Result } from './core.js'
 
 /**
  * Construct a parser only when it's needed.
@@ -11,18 +11,18 @@ import type { IParser, Input, Result } from "./core.ts";
  * @param fn Function that returns a parser.
  */
 export function lazy<O, E, I extends Input>(
-  fn: () => IParser<O, E, I>,
+  fn: () => IParser<O, E, I>
 ): IParser<O, E, I> {
   function parse<C>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, O, E, C> {
-    parse.parser ??= parse.fn();
+    parse.parser ??= parse.fn()
 
-    return parse.parser(input, context);
+    return parse.parser(input, context)
   }
-  parse.fn = fn;
-  parse.parser = null as IParser<O, E, I> | null;
+  parse.fn = fn
+  parse.parser = null as IParser<O, E, I> | null
 
-  return parse;
+  return parse
 }

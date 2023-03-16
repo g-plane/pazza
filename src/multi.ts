@@ -1,9 +1,9 @@
-import type { IParser, IAlwaysOkParser, Input, Result } from "./core.ts";
-import { ErrorKind } from "./error.ts";
+import type { IParser, IAlwaysOkParser, Input, Result } from './core.js'
+import { ErrorKind } from './error.js'
 
 interface MinCountError<T, E extends ErrorKind> {
-  kind: E;
-  output: T[];
+  kind: E
+  output: T[]
 }
 
 type NeverFailOnZeroCountParser<
@@ -12,9 +12,10 @@ type NeverFailOnZeroCountParser<
   E extends ErrorKind,
   I extends Input,
   CtxIn,
-  CtxOut,
-> = Count extends 0 ? IAlwaysOkParser<T[], I, CtxIn, CtxOut>
-  : IParser<T[], MinCountError<T, E>, I, CtxIn, CtxOut>;
+  CtxOut
+> = Count extends 0
+  ? IAlwaysOkParser<T[], I, CtxIn, CtxOut>
+  : IParser<T[], MinCountError<T, E>, I, CtxIn, CtxOut>
 
 /**
  * Repeat them embedded parser with
@@ -42,32 +43,32 @@ export function many<
   CtxIn,
   CtxOut,
   Min extends number,
-  Max extends number,
+  Max extends number
 >(
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min,
-  max: Max,
+  max: Max
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.Many, I, CtxIn, CtxOut> {
   if (min > max) {
-    throw new RangeError("Maximum value must be greater than minimum value.");
+    throw new RangeError('Maximum value must be greater than minimum value.')
   }
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], MinCountError<T, ErrorKind.Many>, C & CtxOut> {
-    const { min, max } = parse;
+    const { min, max } = parse
 
-    const output: T[] = [];
-    let count = 0;
+    const output: T[] = []
+    let count = 0
 
-    let result = parser(input, context);
+    let result = parser(input, context)
     while (result.ok && count < max) {
-      count += 1;
-      input = result.input;
-      context = result.context;
-      output.push(result.output);
-      result = parser(input, context);
+      count += 1
+      input = result.input
+      context = result.context
+      output.push(result.output)
+      result = parser(input, context)
     }
 
     if (count < min) {
@@ -76,13 +77,13 @@ export function many<
         input,
         error: { kind: ErrorKind.Many, output },
         context: context as C & CtxOut,
-      };
+      }
     } else {
-      return { ok: true, input, output, context: context as C & CtxOut };
+      return { ok: true, input, output, context: context as C & CtxOut }
     }
   }
-  parse.min = min;
-  parse.max = max;
+  parse.min = min
+  parse.max = max
 
   return parse as unknown as NeverFailOnZeroCountParser<
     Min,
@@ -91,7 +92,7 @@ export function many<
     I,
     CtxIn,
     CtxOut
-  >;
+  >
 }
 
 /**
@@ -105,18 +106,18 @@ export function many<
  * @param parser embedded parser
  */
 export function many0<T, E, I extends Input, CtxIn, CtxOut>(
-  parser: IParser<T, E, I, CtxIn, CtxOut>,
+  parser: IParser<T, E, I, CtxIn, CtxOut>
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], E, C & CtxOut> {
-    const items: T[] = [];
+    const items: T[] = []
 
-    let result = parse.parser(input, context);
+    let result = parse.parser(input, context)
     while (result.ok) {
-      items.push(result.output);
-      result = parser(result.input, result.context);
+      items.push(result.output)
+      result = parser(result.input, result.context)
     }
 
     return {
@@ -124,11 +125,11 @@ export function many0<T, E, I extends Input, CtxIn, CtxOut>(
       input: result.input,
       output: items,
       context: result.context,
-    };
+    }
   }
-  parse.parser = parser;
+  parse.parser = parser
 
-  return parse;
+  return parse
 }
 
 /**
@@ -142,22 +143,22 @@ export function many0<T, E, I extends Input, CtxIn, CtxOut>(
  * @param parser embedded parser
  */
 export function many1<T, E, I extends Input, CtxIn, CtxOut>(
-  parser: IParser<T, E, I, CtxIn, CtxOut>,
+  parser: IParser<T, E, I, CtxIn, CtxOut>
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], E, C & CtxOut> {
-    const items: T[] = [];
+    const items: T[] = []
 
-    let result = parse.parser(input, context);
+    let result = parse.parser(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
     while (result.ok) {
-      items.push(result.output);
-      result = parse.parser(result.input, result.context);
+      items.push(result.output)
+      result = parse.parser(result.input, result.context)
     }
 
     return {
@@ -165,11 +166,11 @@ export function many1<T, E, I extends Input, CtxIn, CtxOut>(
       input: result.input,
       output: items,
       context: result.context,
-    };
+    }
   }
-  parse.parser = parser;
+  parse.parser = parser
 
-  return parse;
+  return parse
 }
 
 /**
@@ -184,40 +185,40 @@ export function many1<T, E, I extends Input, CtxIn, CtxOut>(
  */
 export function manyUntil<T, U, E, I extends Input, CtxIn, CtxOut>(
   parser: IParser<T, E, I, CtxIn, CtxOut>,
-  end: IParser<U, unknown, I, CtxIn, CtxOut>,
+  end: IParser<U, unknown, I, CtxIn, CtxOut>
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], E, C & CtxOut> {
-    const { parser, end } = parse;
-    const output: T[] = [];
+    const { parser, end } = parse
+    const output: T[] = []
 
     while (true) {
-      const endResult = end(input, context);
+      const endResult = end(input, context)
       if (endResult.ok) {
         return {
           ok: true,
           input,
           output,
           context: context as C & CtxOut,
-        };
+        }
       }
 
-      const result = parser(input, context);
+      const result = parser(input, context)
       if (result.ok) {
-        input = result.input;
-        context = result.context;
-        output.push(result.output);
+        input = result.input
+        context = result.context
+        output.push(result.output)
       } else {
-        return result;
+        return result
       }
     }
   }
-  parse.parser = parser;
-  parse.end = end;
+  parse.parser = parser
+  parse.end = end
 
-  return parse;
+  return parse
 }
 
 /**
@@ -244,33 +245,33 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min | 0 = 0,
-  max = Infinity,
+  max = Infinity
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.SepBy, I, CtxIn, CtxOut> {
   if (min > max) {
-    throw new RangeError("Maximum value must be greater than minimum value.");
+    throw new RangeError('Maximum value must be greater than minimum value.')
   }
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], MinCountError<T, ErrorKind.SepBy>, C & CtxOut> {
-    const { min, max, parser, separator } = parse;
-    const output: T[] = [];
+    const { min, max, parser, separator } = parse
+    const output: T[] = []
 
-    let count = 0;
-    let result = parser(input, context);
+    let count = 0
+    let result = parser(input, context)
     while (result.ok && count < max) {
-      output.push(result.output);
-      input = result.input;
-      context = result.context;
-      count += 1;
+      output.push(result.output)
+      input = result.input
+      context = result.context
+      count += 1
 
-      const sep = separator(input, context);
+      const sep = separator(input, context)
       if (!sep.ok) {
-        break;
+        break
       }
 
-      result = parser(sep.input, sep.context);
+      result = parser(sep.input, sep.context)
     }
 
     if (count < min) {
@@ -282,15 +283,15 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
           output,
         },
         context: context as C & CtxOut,
-      };
+      }
     } else {
-      return { ok: true, input, output, context: context as C & CtxOut };
+      return { ok: true, input, output, context: context as C & CtxOut }
     }
   }
-  parse.parser = parser;
-  parse.separator = separator;
-  parse.min = min;
-  parse.max = max;
+  parse.parser = parser
+  parse.separator = separator
+  parse.min = min
+  parse.max = max
 
   return parse as unknown as NeverFailOnZeroCountParser<
     Min,
@@ -299,7 +300,7 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
     I,
     CtxIn,
     CtxOut
-  >;
+  >
 }
 
 /**
@@ -319,39 +320,39 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
  */
 export function sepBy1<T, E, I extends Input, CtxIn, CtxOut>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
-  parser: IParser<T, E, I, CtxIn, CtxOut>,
+  parser: IParser<T, E, I, CtxIn, CtxOut>
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], E, C & CtxOut> {
-    const { parser, separator } = parse;
-    const output: T[] = [];
+    const { parser, separator } = parse
+    const output: T[] = []
 
-    let result = parser(input, context);
+    let result = parser(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
     while (result.ok) {
-      output.push(result.output);
-      input = result.input;
-      context = result.context;
+      output.push(result.output)
+      input = result.input
+      context = result.context
 
-      const sep = separator(input, context);
+      const sep = separator(input, context)
       if (!sep.ok) {
-        break;
+        break
       }
 
-      result = parser(sep.input, context);
+      result = parser(sep.input, context)
     }
 
-    return { ok: true, input, output, context: context as C & CtxOut };
+    return { ok: true, input, output, context: context as C & CtxOut }
   }
-  parse.parser = parser;
-  parse.separator = separator;
+  parse.parser = parser
+  parse.separator = separator
 
-  return parse;
+  return parse
 }
 
 /**
@@ -378,40 +379,40 @@ export function sepEndBy<
   I extends Input,
   CtxIn,
   CtxOut,
-  Min extends number,
+  Min extends number
 >(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min | 0 = 0,
-  max = Infinity,
+  max = Infinity
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.SepEndBy, I, CtxIn, CtxOut> {
   if (min > max) {
-    throw new RangeError("Maximum value must be greater than minimum value.");
+    throw new RangeError('Maximum value must be greater than minimum value.')
   }
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], MinCountError<T, ErrorKind.SepEndBy>, C & CtxOut> {
-    const { min, max, parser, separator } = parse;
-    const output: T[] = [];
+    const { min, max, parser, separator } = parse
+    const output: T[] = []
 
-    let count = 0;
-    let result = parser(input, context);
+    let count = 0
+    let result = parser(input, context)
     while (result.ok && count < max) {
-      output.push(result.output);
-      input = result.input;
-      context = result.context;
-      count += 1;
+      output.push(result.output)
+      input = result.input
+      context = result.context
+      count += 1
 
-      const sep = separator(input, context);
-      input = sep.input;
-      context = sep.context;
+      const sep = separator(input, context)
+      input = sep.input
+      context = sep.context
       if (!sep.ok) {
-        break;
+        break
       }
 
-      result = parser(input, context);
+      result = parser(input, context)
     }
 
     if (count < min) {
@@ -423,15 +424,15 @@ export function sepEndBy<
           output,
         },
         context: context as C & CtxOut,
-      };
+      }
     } else {
-      return { ok: true, input, output, context: context as C & CtxOut };
+      return { ok: true, input, output, context: context as C & CtxOut }
     }
   }
-  parse.parser = parser;
-  parse.separator = separator;
-  parse.min = min;
-  parse.max = max;
+  parse.parser = parser
+  parse.separator = separator
+  parse.min = min
+  parse.max = max
 
   return parse as unknown as NeverFailOnZeroCountParser<
     Min,
@@ -440,7 +441,7 @@ export function sepEndBy<
     I,
     CtxIn,
     CtxOut
-  >;
+  >
 }
 
 /**
@@ -458,41 +459,38 @@ export function sepEndBy<
  */
 export function sepEndBy1<T, E, I extends Input, CtxIn, CtxOut>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
-  parser: IParser<T, E, I, CtxIn, CtxOut>,
+  parser: IParser<T, E, I, CtxIn, CtxOut>
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T[], E, C & CtxOut> {
-    const output: T[] = [];
+    const output: T[] = []
 
-    let result = parser(input, context);
+    let result = parser(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
     while (result.ok) {
-      output.push(result.output);
-      input = result.input;
-      context = result.context;
+      output.push(result.output)
+      input = result.input
+      context = result.context
 
-      const sep = separator(
-        input,
-        context,
-      );
-      input = sep.input;
-      context = sep.context;
+      const sep = separator(input, context)
+      input = sep.input
+      context = sep.context
       if (!sep.ok) {
-        break;
+        break
       }
 
-      result = parser(sep.input, context);
+      result = parser(sep.input, context)
     }
 
-    return { ok: true, input, output, context: context as C & CtxOut };
+    return { ok: true, input, output, context: context as C & CtxOut }
   }
-  parse.parser = parser;
-  parse.separator = separator;
+  parse.parser = parser
+  parse.separator = separator
 
-  return parse;
+  return parse
 }

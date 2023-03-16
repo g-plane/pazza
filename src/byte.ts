@@ -1,5 +1,5 @@
-import type { IParser, Result } from "./core.ts";
-import { ErrorKind } from "./error.ts";
+import type { IParser, Result } from './core.js'
+import { ErrorKind } from './error.js'
 
 /**
  * Parse a specified byte.
@@ -10,11 +10,11 @@ import { ErrorKind } from "./error.ts";
  * @param byte 8-bit unsigned integer
  */
 export function byte<B extends number>(
-  byte: B,
+  byte: B
 ): IParser<B, ErrorKind.Byte, Uint8Array> {
   function parse<C>(
     input: Uint8Array,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<Uint8Array, B, ErrorKind.Byte, C> {
     if (input[0] === parse.byte) {
       return {
@@ -22,19 +22,19 @@ export function byte<B extends number>(
         input: input.subarray(1),
         output: parse.byte,
         context,
-      };
+      }
     } else {
       return {
         ok: false,
         input,
         error: ErrorKind.Byte,
         context,
-      };
+      }
     }
   }
-  parse.byte = byte;
+  parse.byte = byte
 
-  return parse;
+  return parse
 }
 
 /**
@@ -45,7 +45,7 @@ export function byte<B extends number>(
 export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
   return <C>(
     input: Uint8Array,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<Uint8Array, number, ErrorKind.AnyByte, C> => {
     if (input.length === 0) {
       return {
@@ -53,16 +53,16 @@ export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
         input,
         error: ErrorKind.AnyByte,
         context,
-      };
+      }
     } else {
       return {
         ok: true,
         input: input.subarray(1),
         output: input[0],
         context,
-      };
+      }
     }
-  };
+  }
 }
 
 /**
@@ -75,14 +75,14 @@ export function anyByte(): IParser<number, ErrorKind.AnyByte, Uint8Array> {
  * @param slice slice of 8-bit unsigned integers
  */
 export function slice(
-  slice: Uint8Array,
+  slice: Uint8Array
 ): IParser<Uint8Array, ErrorKind.Slice, Uint8Array> {
   function parse<C>(
     input: Uint8Array,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<Uint8Array, Uint8Array, ErrorKind.Slice, C> {
-    const { slice } = parse;
-    const max = slice.length;
+    const { slice } = parse
+    const max = slice.length
     for (let i = 0; i < max; i += 1) {
       if (slice[i] !== input[i]) {
         return {
@@ -90,7 +90,7 @@ export function slice(
           input,
           error: ErrorKind.Slice,
           context,
-        };
+        }
       }
     }
 
@@ -99,9 +99,9 @@ export function slice(
       input: input.slice(max),
       output: slice,
       context,
-    };
+    }
   }
-  parse.slice = slice;
+  parse.slice = slice
 
-  return parse;
+  return parse
 }

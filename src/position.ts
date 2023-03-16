@@ -1,28 +1,28 @@
-import type { IParser, Result } from "./core.ts";
-import { ErrorKind } from "./error.ts";
-import { map } from "./combinator.ts";
-import { serial } from "./sequence.ts";
+import type { IParser, Result } from './core.js'
+import { ErrorKind } from './error.js'
+import { map } from './combinator.js'
+import { serial } from './sequence.js'
 
-const positionCtxSymbol = Symbol("positionContext");
+const positionCtxSymbol = Symbol('positionContext')
 
 /**
  * Cursor position information.
  */
 export type Position = {
   /** Offset from the start of the source. It starts from 0. */
-  offset: number;
+  offset: number
   /** Line number, which starts from 1. */
-  line: number;
+  line: number
   /** Column number, which starts from 0. */
-  column: number;
-};
+  column: number
+}
 
 type PositionContext = {
   [K in typeof positionCtxSymbol]: {
-    position: Position;
-    lastInput: string;
-  };
-};
+    position: Position
+    lastInput: string
+  }
+}
 
 /**
  * Execute the embedded parser with a new "position context".
@@ -34,8 +34,13 @@ type PositionContext = {
  *
  * @param parser embedded parser
  */
-export function withPositionCtx<O, E, CtxIn, CtxOut>(
-  parser: IParser<O, E, string, CtxIn, CtxOut>,
+export function withPositionCtx<
+  O,
+  E,
+  CtxIn extends object,
+  CtxOut extends object
+>(
+  parser: IParser<O, E, string, CtxIn, CtxOut>
 ): IParser<
   O,
   E,
@@ -45,7 +50,7 @@ export function withPositionCtx<O, E, CtxIn, CtxOut>(
 > {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<string, O, E, C & CtxOut & PositionContext> {
     const positionCtx: PositionContext = {
       [positionCtxSymbol]: {
@@ -56,13 +61,13 @@ export function withPositionCtx<O, E, CtxIn, CtxOut>(
         },
         lastInput: input,
       },
-    };
+    }
 
-    return parse.parser(input, Object.assign(context, positionCtx));
+    return parse.parser(input, Object.assign(context, positionCtx))
   }
-  parse.parser = parser;
+  parse.parser = parser
 
-  return parse;
+  return parse
 }
 
 /**
@@ -89,52 +94,42 @@ export function position(): IParser<
 > {
   return <C extends PositionContext>(
     input: string,
-    context?: C,
-  ): Result<
-    string,
-    Position,
-    ErrorKind.MissingPositionContext,
-    C
-  > => {
+    context?: C
+  ): Result<string, Position, ErrorKind.MissingPositionContext, C> => {
     if (!context?.[positionCtxSymbol]) {
       return {
         ok: false,
         input,
         error: ErrorKind.MissingPositionContext,
         context: context!,
-      };
+      }
     }
 
-    const ctx = context[positionCtxSymbol];
-    const position = Object.assign({}, ctx.position);
+    const ctx = context[positionCtxSymbol]
+    const position = Object.assign({}, ctx.position)
 
-    const consumed = ctx.lastInput.slice(
-      0,
-      ctx.lastInput.length - input.length,
-    );
-    const offset = consumed.length;
-    position.offset += offset;
+    const consumed = ctx.lastInput.slice(0, ctx.lastInput.length - input.length)
+    const offset = consumed.length
+    position.offset += offset
 
-    const lines = consumed.split(/\r?\n/);
+    const lines = consumed.split(/\r?\n/)
     if (lines.length === 1) {
-      position.column += offset;
+      position.column += offset
     } else {
-      const lastIndex = lines.length - 1;
-      position.line += lastIndex;
-      position.column = lines[lastIndex].length;
+      const lastIndex = lines.length - 1
+      position.line += lastIndex
+      position.column = lines[lastIndex].length
     }
 
     return {
       ok: true,
       input,
       output: position,
-      context: Object.assign(
-        {},
-        context,
-        { [positionCtxSymbol]: { position, lastInput: input } },
-      ),
-    };
-  };
+      context: Object.assign({}, context, {
+        [positionCtxSymbol]: { position, lastInput: input },
+      }),
+    }
+  }
 }
 
 /**
@@ -143,12 +138,12 @@ export function position(): IParser<
  */
 export type Span<T> = {
   /** Parsed value. */
-  value: T;
+  value: T
   /** Start position. (Inclusive) */
-  start: Position;
+  start: Position
   /** End position. (Exclusive) */
-  end: Position;
-};
+  end: Position
+}
 
 /**
  * Execute the embedded parser,
@@ -180,7 +175,7 @@ export type Span<T> = {
  * @param parser embedded parser
  */
 export function spanned<O, E, CtxIn, CtxOut>(
-  parser: IParser<O, E, string, CtxIn, CtxOut>,
+  parser: IParser<O, E, string, CtxIn, CtxOut>
 ): IParser<
   Span<O>,
   E | ErrorKind.MissingPositionContext,
@@ -188,8 +183,9 @@ export function spanned<O, E, CtxIn, CtxOut>(
   CtxIn & PositionContext,
   CtxOut
 > {
-  return map(
-    serial(position(), parser, position()),
-    ([start, value, end]) => ({ value, start, end }),
-  );
+  return map(serial(position(), parser, position()), ([start, value, end]) => ({
+    value,
+    start,
+    end,
+  }))
 }

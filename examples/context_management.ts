@@ -1,35 +1,27 @@
-import produce from "https://cdn.skypack.dev/immer?dts";
-import createStore from "https://cdn.skypack.dev/unistore?dts";
-import type { Store } from "https://cdn.skypack.dev/unistore?dts";
-import {
-  between,
-  sepBy,
-  digit,
-  char,
-  IParser,
-  ErrorKind,
-} from "../mod.ts";
+import produce from 'immer'
+import createStore, { type Store } from 'unistore'
+import { between, sepBy, digit, char, IParser, ErrorKind } from '../src'
 
-type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-export type Context = Record<Digit, number>;
+type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+export type Context = Record<Digit, number>
 
 export const parserContext: Context = {
-  "0": 0,
-  "1": 0,
-  "2": 0,
-  "3": 0,
-  "4": 0,
-  "5": 0,
-  "6": 0,
-  "7": 0,
-  "8": 0,
-  "9": 0,
-};
+  '0': 0,
+  '1': 0,
+  '2': 0,
+  '3': 0,
+  '4': 0,
+  '5': 0,
+  '6': 0,
+  '7': 0,
+  '8': 0,
+  '9': 0,
+}
 
 function parseDigitArray(
-  digitParser: () => IParser<Digit, ErrorKind.Digit, string, Context>,
+  digitParser: () => IParser<Digit, ErrorKind.Digit, string, Context>
 ) {
-  return between(char("["), char("]"), sepBy(char(","), digitParser()));
+  return between(char('['), char(']'), sepBy(char(','), digitParser()))
 }
 
 //#region using Immer
@@ -40,22 +32,22 @@ function parseDigitWithImmer(): IParser<
   Context
 > {
   return (input: string, context: Context = parserContext) => {
-    const result = digit()(input, context);
+    const result = digit()(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
     // We use Immer here to create an immutable parser context.
     context = produce(result.context, (draft) => {
-      draft[result.output] += 1;
-    });
+      draft[result.output] += 1
+    })
 
-    return { ...result, context };
-  };
+    return { ...result, context }
+  }
 }
 
 export function contextedParserWithImmer() {
-  return parseDigitArray(parseDigitWithImmer);
+  return parseDigitArray(parseDigitWithImmer)
 }
 //#endregion
 
@@ -72,25 +64,25 @@ function parseDigitWithUnistore(): IParser<
 > {
   return (
     input: string,
-    context: Store<Context> = createStore(parserContext),
+    context: Store<Context> = createStore(parserContext)
   ) => {
-    const result = digit()(input, context);
+    const result = digit()(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
-    const key = result.output;
-    context!.action((state) => ({ [key]: state[key] + 1 }))();
+    const key = result.output
+    context!.action((state) => ({ [key]: state[key] + 1 }))()
 
-    return { ...result, context };
-  };
+    return { ...result, context }
+  }
 }
 
 export function contextedParserWithUnistore() {
-  return parseDigitArray(parseDigitWithUnistore);
+  return parseDigitArray(parseDigitWithUnistore)
 }
 
 export function createUnistoreContext() {
-  return createStore(parserContext);
+  return createStore(parserContext)
 }
 //#endregion

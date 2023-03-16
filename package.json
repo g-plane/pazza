@@ -11,22 +11,30 @@
     "tree-shaking"
   ],
   "scripts": {
-    "prepublishOnly": "deno run --unstable --allow-read --allow-write build.ts",
-    "postpublish": "rm -rf dist"
+    "build": "tsc -p . --outDir dist/esm && tsc -p . --outDir dist/cjs --module commonjs",
+    "prepublishOnly": "pnpm build",
+    "test": "vitest",
+    "fmt": "prettier --write src tests examples",
+    "fmt:check": "prettier --check src test examples"
   },
   "main": "./dist/cjs/index.js",
-  "module": "./dist/es/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/es/index.js",
+      "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js"
-    },
-    "./": {
-      "import": "./dist/es/",
-      "require": "./dist/cjs/"
     }
   },
   "files": [
     "dist"
-  ]
+  ],
+  "devDependencies": {
+    "@gplane/tsconfig": "^5.0.0",
+    "immer": "^9.0.19",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5",
+    "unistore": "^3.5.2",
+    "vitest": "^0.29.3"
+  }
 }

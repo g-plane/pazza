@@ -1,5 +1,5 @@
-import type { IParser, Result } from "./core.ts";
-import { ErrorKind } from "./error.ts";
+import type { IParser, Result } from './core.js'
+import { ErrorKind } from './error.js'
 
 /**
  * Parse a specified string.
@@ -11,32 +11,32 @@ import { ErrorKind } from "./error.ts";
  * @param literal string literal
  */
 export function string<S extends string>(
-  literal: S,
+  literal: S
 ): IParser<S, ErrorKind.String, string> {
   function parse<C, I extends string>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<string, S, ErrorKind.String, C> {
-    const { literal } = parse;
+    const { literal } = parse
     if (input.slice(0, literal.length) === literal) {
       return {
         ok: true,
         input: input.slice(literal.length),
         output: literal,
         context,
-      };
+      }
     } else {
       return {
         ok: false,
         input,
         error: ErrorKind.String,
         context,
-      };
+      }
     }
   }
-  parse.literal = literal;
+  parse.literal = literal
 
-  return parse;
+  return parse
 }
 
 /**
@@ -49,22 +49,22 @@ export function string<S extends string>(
  * @param charParser embedded character parser
  */
 export function string0<E, CtxIn, CtxOut>(
-  charParser: IParser<string, E, string, CtxIn, CtxOut>,
+  charParser: IParser<string, E, string, CtxIn, CtxOut>
 ): IParser<string, E, string, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<string, string, E, C & CtxOut> {
-    const { charParser } = parse;
-    let output = "";
+    const { charParser } = parse
+    let output = ''
 
-    let result = charParser(input, context);
+    let result = charParser(input, context)
     while (result.ok) {
-      output += result.output;
-      input = result.input;
-      context = result.context;
+      output += result.output
+      input = result.input
+      context = result.context
 
-      result = charParser(input, context);
+      result = charParser(input, context)
     }
 
     return {
@@ -72,11 +72,11 @@ export function string0<E, CtxIn, CtxOut>(
       input,
       output,
       context: context as C & CtxOut,
-    };
+    }
   }
-  parse.charParser = charParser;
+  parse.charParser = charParser
 
-  return parse;
+  return parse
 }
 
 /**
@@ -89,26 +89,26 @@ export function string0<E, CtxIn, CtxOut>(
  * @param charParser embedded character parser
  */
 export function string1<E, CtxIn, CtxOut>(
-  charParser: IParser<string, E, string, CtxIn, CtxOut>,
+  charParser: IParser<string, E, string, CtxIn, CtxOut>
 ): IParser<string, E, string, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<string, string, E, C & CtxOut> {
-    const { charParser } = parse;
-    let output = "";
+    const { charParser } = parse
+    let output = ''
 
-    let result = charParser(input, context);
+    let result = charParser(input, context)
     if (!result.ok) {
-      return result;
+      return result
     }
 
     while (result.ok) {
-      output += result.output;
-      input = result.input;
-      context = result.context;
+      output += result.output
+      input = result.input
+      context = result.context
 
-      result = charParser(input, context);
+      result = charParser(input, context)
     }
 
     return {
@@ -116,9 +116,9 @@ export function string1<E, CtxIn, CtxOut>(
       input,
       output,
       context: context as C & CtxOut,
-    };
+    }
   }
-  parse.charParser = charParser;
+  parse.charParser = charParser
 
-  return parse;
+  return parse
 }

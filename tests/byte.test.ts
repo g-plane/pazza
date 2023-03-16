@@ -1,54 +1,54 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { byte, anyByte, slice, ErrorKind } from "../mod.ts";
+import { test, expect } from 'vitest'
+import { byte, anyByte, slice, ErrorKind } from '../src'
 
-Deno.test("byte", () => {
-  const bytes = Uint8Array.of(13, 10);
+test('byte', () => {
+  const bytes = Uint8Array.of(13, 10)
 
-  assertEquals(byte(13)(bytes), {
+  expect(byte(13)(bytes)).toEqual({
     ok: true,
     input: bytes.subarray(1),
     output: 13,
     context: {},
-  });
+  })
 
-  assertEquals(byte(10)(bytes), {
+  expect(byte(10)(bytes)).toEqual({
     ok: false,
     input: bytes,
     error: ErrorKind.Byte,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("anyByte", () => {
-  assertEquals(anyByte()(Uint8Array.of(13, 10)), {
+test('anyByte', () => {
+  expect(anyByte()(Uint8Array.of(13, 10))).toEqual({
     ok: true,
     input: Uint8Array.of(10),
     output: 13,
     context: {},
-  });
+  })
 
-  assertEquals(anyByte()(Uint8Array.of()), {
+  expect(anyByte()(Uint8Array.of())).toEqual({
     ok: false,
     input: Uint8Array.of(),
     error: ErrorKind.AnyByte,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("slice", () => {
-  const bytes = Uint8Array.of(65, 66, 67);
+test('slice', () => {
+  const bytes = Uint8Array.of(65, 66, 67)
 
-  assertEquals(slice(Uint8Array.of(65, 66))(bytes), {
+  expect(slice(Uint8Array.of(65, 66))(bytes)).toEqual({
     ok: true,
     input: bytes.subarray(2),
     output: bytes.subarray(0, 2),
     context: {},
-  });
+  })
 
-  assertEquals(slice(Uint8Array.of(64, 65))(bytes), {
+  expect(slice(Uint8Array.of(64, 65))(bytes)).toEqual({
     ok: false,
     input: bytes,
     error: ErrorKind.Slice,
     context: {},
-  });
-});
+  })
+})

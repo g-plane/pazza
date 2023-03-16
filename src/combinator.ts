@@ -1,5 +1,5 @@
-import type { IParser, IAlwaysOkParser, Input, Ok, Result } from "./core.ts";
-import { ErrorKind } from "./error.ts";
+import type { IParser, IAlwaysOkParser, Input, Ok, Result } from './core.js'
+import { ErrorKind } from './error.js'
 
 /**
  * Execute the embedded parser.
@@ -13,23 +13,23 @@ import { ErrorKind } from "./error.ts";
  */
 export function map<T, U, E, I extends Input, CtxIn, CtxOut>(
   parser: IParser<T, E, I, CtxIn, CtxOut>,
-  fn: (output: T) => U,
+  fn: (output: T) => U
 ): IParser<U, E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, U, E, C & CtxOut> {
-    const result = parse.parser(input, context);
+    const result = parse.parser(input, context)
     if (result.ok) {
-      return { ...result, output: parse.fn(result.output) };
+      return { ...result, output: parse.fn(result.output) }
     } else {
-      return result;
+      return result
     }
   }
-  parse.parser = parser;
-  parse.fn = fn;
+  parse.parser = parser
+  parse.fn = fn
 
-  return parse;
+  return parse
 }
 
 /**
@@ -44,23 +44,23 @@ export function map<T, U, E, I extends Input, CtxIn, CtxOut>(
  */
 export function mapErr<T, E1, E2, I extends Input, CtxIn, CtxOut>(
   parser: IParser<T, E1, I, CtxIn, CtxOut>,
-  fn: (error: E1) => E2,
+  fn: (error: E1) => E2
 ): IParser<T, E2, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<I, T, E2, C & CtxOut> {
-    const result = parse.parser(input, context);
+    const result = parse.parser(input, context)
     if (result.ok) {
-      return result;
+      return result
     } else {
-      return { ...result, error: parse.fn(result.error) };
+      return { ...result, error: parse.fn(result.error) }
     }
   }
-  parse.parser = parser;
-  parse.fn = fn;
+  parse.parser = parser
+  parse.fn = fn
 
-  return parse;
+  return parse
 }
 
 /**
@@ -75,27 +75,27 @@ export function mapErr<T, E1, E2, I extends Input, CtxIn, CtxOut>(
  * @param parser embedded parser
  */
 export function optional<T, I extends Input, CtxIn, CtxOut>(
-  parser: IParser<T, unknown, I, CtxIn, CtxOut>,
+  parser: IParser<T, unknown, I, CtxIn, CtxOut>
 ): IAlwaysOkParser<T | null, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Ok<I, T | null, C & CtxOut> {
-    const result = parse.parser(input, context);
+    const result = parse.parser(input, context)
     if (result.ok) {
-      return result;
+      return result
     } else {
       return {
         ok: true,
         input,
         output: null,
         context: result.context,
-      };
+      }
     }
   }
-  parse.parser = parser;
+  parse.parser = parser
 
-  return parse;
+  return parse
 }
 
 /**
@@ -109,8 +109,8 @@ export function optional<T, I extends Input, CtxIn, CtxOut>(
  * @param predicate predicate which tests next character
  */
 export function satisfy<I extends string>(
-  predicate: (item: I[0]) => boolean,
-): IParser<I[0], ErrorKind.Satisfy, I>;
+  predicate: (item: I[0]) => boolean
+): IParser<I[0], ErrorKind.Satisfy, I>
 /**
  * Pick next byte from input and pass it to provided predicate.
  * If the predicate passes, return a successful parsing result with that byte.
@@ -122,16 +122,16 @@ export function satisfy<I extends string>(
  * @param predicate predicate which tests next byte (8-bit unsigned integer)
  */
 export function satisfy<I extends Uint8Array>(
-  predicate: (item: I[0]) => boolean,
-): IParser<I[0], ErrorKind.Satisfy, I>;
+  predicate: (item: I[0]) => boolean
+): IParser<I[0], ErrorKind.Satisfy, I>
 export function satisfy(
-  predicate: (item: Input[0]) => boolean,
+  predicate: (item: Input[0]) => boolean
 ): IParser<Input[0], ErrorKind.Satisfy, Input> {
   function parse<C>(
     input: Input,
-    context: C = Object.create(null),
+    context: C = Object.create(null)
   ): Result<Input, Input[0], ErrorKind.Satisfy, C> {
-    const first = input[0];
+    const first = input[0]
 
     if (parse.predicate(first)) {
       return {
@@ -139,17 +139,17 @@ export function satisfy(
         input: input.slice(1),
         output: first,
         context,
-      };
+      }
     } else {
       return {
         ok: false,
         input,
         error: ErrorKind.Satisfy,
         context,
-      };
+      }
     }
   }
-  parse.predicate = predicate;
+  parse.predicate = predicate
 
-  return parse;
+  return parse
 }

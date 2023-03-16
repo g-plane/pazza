@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.70.0/testing/asserts.ts";
+import { test, expect } from 'vitest'
 import {
   char,
   anyChar,
@@ -9,7 +6,6 @@ import {
   noneOfChars,
   escapedWith,
   escapedBy,
-  string,
   octal,
   digit,
   hex,
@@ -17,418 +13,409 @@ import {
   lower,
   upper,
   ErrorKind,
-} from "../mod.ts";
+} from '../src'
 
-Deno.test("char", () => {
-  assertThrows(
-    () => char(""),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+test('char', () => {
+  expect(() => char('')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  assertThrows(
-    () => char("ab"),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() => char('ab')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  assertEquals(char("a")("ab"), {
+  expect(char('a')('ab')).toEqual({
     ok: true,
-    input: "b",
-    output: "a",
+    input: 'b',
+    output: 'a',
     context: {},
-  });
+  })
 
-  assertEquals(char("a")("b"), {
+  expect(char('a')('b')).toEqual({
     ok: false,
-    input: "b",
+    input: 'b',
     error: ErrorKind.Char,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("anyChar", () => {
-  assertEquals(anyChar()("test"), {
+test('anyChar', () => {
+  expect(anyChar()('test')).toEqual({
     ok: true,
-    input: "est",
-    output: "t",
+    input: 'est',
+    output: 't',
     context: {},
-  });
+  })
 
-  assertEquals(anyChar()(""), {
+  expect(anyChar()('')).toEqual({
     ok: false,
-    input: "",
+    input: '',
     error: ErrorKind.AnyChar,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("oneOfChars", () => {
-  assertThrows(
-    () => oneOfChars("", "a"),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+test('oneOfChars', () => {
+  expect(() => oneOfChars('', 'a')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  assertThrows(
-    () => oneOfChars("a", "bc"),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() => oneOfChars('a', 'bc')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  const chars = ["a", "b", "c"];
-  const parser = oneOfChars(...chars);
+  const chars = ['a', 'b', 'c']
+  const parser = oneOfChars(...chars)
 
   chars.forEach((char) => {
-    assertEquals(parser(`${char}-`), {
+    expect(parser(`${char}-`)).toEqual({
       ok: true,
-      input: "-",
+      input: '-',
       output: char,
       context: {},
-    });
-  });
+    })
+  })
 
-  assertEquals(parser("d"), {
+  expect(parser('d')).toEqual({
     ok: false,
-    input: "d",
+    input: 'd',
     error: ErrorKind.OneOfChars,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("noneOfChars", () => {
-  assertThrows(
-    () => noneOfChars("", "a"),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+test('noneOfChars', () => {
+  expect(() => noneOfChars('', 'a')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  assertThrows(
-    () => noneOfChars("a", "bc"),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() => noneOfChars('a', 'bc')).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  const chars = ["a", "b", "c"];
-  const parser = noneOfChars(...chars);
+  const chars = ['a', 'b', 'c']
+  const parser = noneOfChars(...chars)
 
   chars.forEach((char) => {
-    assertEquals(parser(char), {
+    expect(parser(char)).toEqual({
       ok: false,
       input: char,
       error: ErrorKind.NoneOfChars,
       context: {},
-    });
-  });
+    })
+  })
 
-  assertEquals(parser("d"), {
+  expect(parser('d')).toEqual({
     ok: true,
-    input: "",
-    output: "d",
+    input: '',
+    output: 'd',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("escapedWith", () => {
-  assertThrows(
-    () => escapedWith("", [["a", ""], ["b", ""]]),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+test('escapedWith', () => {
+  expect(() =>
+    escapedWith('', [
+      ['a', ''],
+      ['b', ''],
+    ])
+  ).toThrow('Argument of character parser must be a single character.')
 
-  assertThrows(
-    () => escapedWith("ab", [["a", ""], ["b", ""]]),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() =>
+    escapedWith('ab', [
+      ['a', ''],
+      ['b', ''],
+    ])
+  ).toThrow('Argument of character parser must be a single character.')
 
-  assertThrows(
-    () => escapedWith("a", [["ab", ""], ["c", ""]]),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() =>
+    escapedWith('a', [
+      ['ab', ''],
+      ['c', ''],
+    ])
+  ).toThrow('Argument of character parser must be a single character.')
 
-  assertThrows(
-    () => escapedWith("a", [["", ""], ["ab", ""]]),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() =>
+    escapedWith('a', [
+      ['', ''],
+      ['ab', ''],
+    ])
+  ).toThrow('Argument of character parser must be a single character.')
 
-  const chars = [["n", "\n"], ["\\", "\\"]] as const;
-  const parser = escapedWith("\\", chars);
+  const chars = [
+    ['n', '\n'],
+    ['\\', '\\'],
+  ] as const
+  const parser = escapedWith('\\', chars)
 
   chars.forEach(([char, raw]) => {
-    assertEquals(parser(`\\${char}`), {
+    expect(parser(`\\${char}`)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: raw,
       context: {},
-    });
-  });
+    })
+  })
 
-  assertEquals(parser("\\t"), {
+  expect(parser('\\t')).toEqual({
     ok: false,
-    input: "\\t",
+    input: '\\t',
     error: ErrorKind.EscapedWith,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("escapedBy", () => {
-  assertThrows(
-    () => escapedBy("", (_) => true),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+test('escapedBy', () => {
+  expect(() => escapedBy('', (_) => true)).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  assertThrows(
-    () => escapedBy("ab", (_) => true),
-    TypeError,
-    "Argument of character parser must be a single character.",
-  );
+  expect(() => escapedBy('ab', (_) => true)).toThrow(
+    'Argument of character parser must be a single character.'
+  )
 
-  const parser1 = escapedBy("\\", (char) => {
-    if (char === "n") {
-      return 10;
+  const parser1 = escapedBy('\\', (char) => {
+    if (char === 'n') {
+      return 10
     } else {
-      return null;
+      return null
     }
-  });
-  assertEquals(parser1("\\n"), {
+  })
+  expect(parser1('\\n')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 10,
     context: {},
-  });
-  assertEquals(parser1("\\t"), {
+  })
+  expect(parser1('\\t')).toEqual({
     ok: false,
-    input: "\\t",
+    input: '\\t',
     error: ErrorKind.EscapedBy,
     context: {},
-  });
-  assertEquals(parser1("\\"), {
+  })
+  expect(parser1('\\')).toEqual({
     ok: false,
-    input: "\\",
+    input: '\\',
     error: ErrorKind.EscapedBy,
     context: {},
-  });
+  })
 
-  const parser2 = escapedBy("\\", (char) => {
-    if (char === "n") {
-      return 10;
+  const parser2 = escapedBy('\\', (char) => {
+    if (char === 'n') {
+      return 10
     }
-  });
-  assertEquals(parser2("\\n"), {
+  })
+  expect(parser2('\\n')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 10,
     context: {},
-  });
-  assertEquals(parser2("\\t"), {
+  })
+  expect(parser2('\\t')).toEqual({
     ok: false,
-    input: "\\t",
+    input: '\\t',
     error: ErrorKind.EscapedBy,
     context: {},
-  });
-  assertEquals(parser2("\\"), {
+  })
+  expect(parser2('\\')).toEqual({
     ok: false,
-    input: "\\",
+    input: '\\',
     error: ErrorKind.EscapedBy,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("octal", () => {
+test('octal', () => {
   for (let i = 0; i <= 7; i += 1) {
-    const num = i.toString();
-    assertEquals(octal()(num), {
+    const num = i.toString()
+    expect(octal()(num)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: num,
       context: {},
-    });
+    })
   }
 
-  assertEquals(octal()("8"), {
+  expect(octal()('8')).toEqual({
     ok: false,
-    input: "8",
+    input: '8',
     error: ErrorKind.Octal,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("digit", () => {
+test('digit', () => {
   for (let i = 0; i <= 9; i += 1) {
-    const num = i.toString();
-    assertEquals(digit()(num), {
+    const num = i.toString()
+    expect(digit()(num)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: num,
       context: {},
-    });
+    })
   }
 
-  assertEquals(digit()("a"), {
+  expect(digit()('a')).toEqual({
     ok: false,
-    input: "a",
+    input: 'a',
     error: ErrorKind.Digit,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("hex", () => {
+test('hex', () => {
   for (let i = 0; i <= 9; i += 1) {
-    const num = i.toString();
-    assertEquals(hex()(num), {
+    const num = i.toString()
+    expect(hex()(num)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: num,
       context: {},
-    });
+    })
   }
 
-  const lower = ["a", "b", "c", "d", "e", "f"];
-  const upper = lower.map((c) => c.toUpperCase());
+  const lower = ['a', 'b', 'c', 'd', 'e', 'f']
+  const upper = lower.map((c) => c.toUpperCase())
 
   lower.forEach((c) => {
-    assertEquals(hex()(c), {
+    expect(hex()(c)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: c,
       context: {},
-    });
-  });
+    })
+  })
 
   upper.forEach((c) => {
-    assertEquals(hex()(c), {
+    expect(hex()(c)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: c,
       context: {},
-    });
-  });
+    })
+  })
 
   lower.forEach((c) => {
-    assertEquals(hex("lower")(c), {
+    expect(hex('lower')(c)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: c,
       context: {},
-    });
-  });
+    })
+  })
 
   upper.forEach((c) => {
-    assertEquals(hex("lower")(c), {
+    expect(hex('lower')(c)).toEqual({
       ok: false,
       input: c,
       error: ErrorKind.LowerHex,
       context: {},
-    });
-  });
+    })
+  })
 
   lower.forEach((c) => {
-    assertEquals(hex("upper")(c), {
+    expect(hex('upper')(c)).toEqual({
       ok: false,
       input: c,
       error: ErrorKind.UpperHex,
       context: {},
-    });
-  });
+    })
+  })
 
   upper.forEach((c) => {
-    assertEquals(hex("upper")(c), {
+    expect(hex('upper')(c)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: c,
       context: {},
-    });
-  });
+    })
+  })
 
-  assertEquals(hex()("h"), {
+  expect(hex()('h')).toEqual({
     ok: false,
-    input: "h",
+    input: 'h',
     error: ErrorKind.Hex,
     context: {},
-  });
+  })
 
-  assertEquals(hex("upper")("h"), {
+  expect(hex('upper')('h')).toEqual({
     ok: false,
-    input: "h",
+    input: 'h',
     error: ErrorKind.Hex,
     context: {},
-  });
+  })
 
-  assertEquals(hex("lower")("h"), {
+  expect(hex('lower')('h')).toEqual({
     ok: false,
-    input: "h",
+    input: 'h',
     error: ErrorKind.Hex,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("alpha", () => {
+test('alpha', () => {
   for (let i = 65; i <= 90; i += 1) {
-    const char = String.fromCharCode(i);
-    assertEquals(alpha()(char), {
+    const char = String.fromCharCode(i)
+    expect(alpha()(char)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: char,
       context: {},
-    });
+    })
   }
 
   for (let i = 97; i <= 122; i += 1) {
-    const char = String.fromCharCode(i);
-    assertEquals(alpha()(char), {
+    const char = String.fromCharCode(i)
+    expect(alpha()(char)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: char,
       context: {},
-    });
+    })
   }
 
-  assertEquals(alpha()("5"), {
+  expect(alpha()('5')).toEqual({
     ok: false,
-    input: "5",
+    input: '5',
     error: ErrorKind.Alphabet,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("lower", () => {
+test('lower', () => {
   for (let i = 97; i <= 122; i += 1) {
-    const char = String.fromCharCode(i);
-    assertEquals(lower()(char), {
+    const char = String.fromCharCode(i)
+    expect(lower()(char)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: char,
       context: {},
-    });
+    })
   }
 
-  assertEquals(lower()("A"), {
+  expect(lower()('A')).toEqual({
     ok: false,
-    input: "A",
+    input: 'A',
     error: ErrorKind.LowerAlphabet,
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("upper", () => {
+test('upper', () => {
   for (let i = 65; i <= 90; i += 1) {
-    const char = String.fromCharCode(i);
-    assertEquals(upper()(char), {
+    const char = String.fromCharCode(i)
+    expect(upper()(char)).toEqual({
       ok: true,
-      input: "",
+      input: '',
       output: char,
       context: {},
-    });
+    })
   }
 
-  assertEquals(upper()("a"), {
+  expect(upper()('a')).toEqual({
     ok: false,
-    input: "a",
+    input: 'a',
     error: ErrorKind.UpperAlphabet,
     context: {},
-  });
-});
+  })
+})

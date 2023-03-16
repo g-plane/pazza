@@ -1,65 +1,65 @@
-import { assertEquals } from "https://deno.land/std@0.70.0/testing/asserts.ts";
-import { pass, fail } from "./_.ts";
-import { or, choice, digit, alpha, map, ErrorKind } from "../mod.ts";
+import { test, expect } from 'vitest'
+import { pass, fail } from './_'
+import { or, choice, digit, alpha, map, ErrorKind } from '../src'
 
-Deno.test("or", () => {
-  assertEquals(or(pass(1), pass(2))(""), {
+test('or', () => {
+  expect(or(pass(1), pass(2))('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 1,
     context: {},
-  });
+  })
 
-  assertEquals(or(pass(1), fail())(""), {
+  expect(or(pass(1), fail())('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 1,
     context: {},
-  });
+  })
 
-  assertEquals(or(fail(), pass(2))(""), {
+  expect(or(fail(), pass(2))('')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 2,
     context: {},
-  });
+  })
 
-  assertEquals(or(fail(), fail())(""), {
+  expect(or(fail(), fail())('')).toEqual({
     ok: false,
-    input: "",
-    error: "Fake parsing error.",
+    input: '',
+    error: 'Fake parsing error.',
     context: {},
-  });
-});
+  })
+})
 
-Deno.test("choice", () => {
-  const parser = choice(digit(), alpha());
+test('choice', () => {
+  const parser = choice(digit(), alpha())
 
-  assertEquals(parser("1a"), {
+  expect(parser('1a')).toEqual({
     ok: true,
-    input: "a",
-    output: "1",
+    input: 'a',
+    output: '1',
     context: {},
-  });
+  })
 
-  assertEquals(parser("a1"), {
+  expect(parser('a1')).toEqual({
     ok: true,
-    input: "1",
-    output: "a",
+    input: '1',
+    output: 'a',
     context: {},
-  });
+  })
 
-  assertEquals(parser("-1a"), {
+  expect(parser('-1a')).toEqual({
     ok: false,
-    input: "-1a",
+    input: '-1a',
     error: ErrorKind.Alphabet,
     context: {},
-  });
+  })
 
-  assertEquals(choice(alpha(), map(digit(), Number.parseInt))("5"), {
+  expect(choice(alpha(), map(digit(), Number.parseInt))('5')).toEqual({
     ok: true,
-    input: "",
+    input: '',
     output: 5,
     context: {},
-  });
-});
+  })
+})
