@@ -11,19 +11,17 @@
     "tree-shaking"
   ],
   "scripts": {
-    "build": "tsc -p . --outDir dist/esm && tsc -p . --outDir dist/cjs --module commonjs",
+    "build": "tsc -p .",
     "prepublishOnly": "pnpm build",
     "test": "vitest",
     "fmt": "prettier --write src tests examples",
     "fmt:check": "prettier --check src tests examples"
   },
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
+  "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": "./dist/index.js"
     }
   },
   "files": [
