@@ -1,4 +1,4 @@
-import produce from 'immer'
+import { produce } from 'immer'
 import createStore, { type Store } from 'unistore'
 import { between, sepBy, digit, char, IParser, ErrorKind } from '../src'
 
