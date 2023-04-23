@@ -10,9 +10,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.2
+        uses: pnpm/action-setup@v2.2.4
         with:
-          version: 7.29.1
+          version: 8.2.0
           run_install: true
       - name: Prettier check
         run: pnpm fmt:check
