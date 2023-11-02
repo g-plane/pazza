@@ -1,5 +1,5 @@
-import { test, expect } from 'vitest'
-import { byte, anyByte, slice, ErrorKind } from '../src'
+import { expect, test } from 'vitest'
+import { ErrorKind, anyByte, byte, slice } from '../src'
 
 test('byte', () => {
   const bytes = Uint8Array.of(13, 10)

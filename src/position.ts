@@ -1,6 +1,6 @@
+import { map } from './combinator.js'
 import type { IParser, Result } from './core.js'
 import { ErrorKind } from './error.js'
-import { map } from './combinator.js'
 import { serial } from './sequence.js'
 
 const positionCtxSymbol = Symbol('positionContext')
@@ -10,17 +10,17 @@ const positionCtxSymbol = Symbol('positionContext')
  */
 export type Position = {
   /** Offset from the start of the source. It starts from 0. */
-  offset: number
+  offset: number,
   /** Line number, which starts from 1. */
-  line: number
+  line: number,
   /** Column number, which starts from 0. */
-  column: number
+  column: number,
 }
 
 type PositionContext = {
   [K in typeof positionCtxSymbol]: {
-    position: Position
-    lastInput: string
+    position: Position,
+    lastInput: string,
   }
 }
 
@@ -38,9 +38,9 @@ export function withPositionCtx<
   O,
   E,
   CtxIn extends object,
-  CtxOut extends object
+  CtxOut extends object,
 >(
-  parser: IParser<O, E, string, CtxIn, CtxOut>
+  parser: IParser<O, E, string, CtxIn, CtxOut>,
 ): IParser<
   O,
   E,
@@ -50,7 +50,7 @@ export function withPositionCtx<
 > {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, O, E, C & CtxOut & PositionContext> {
     const positionCtx: PositionContext = {
       [positionCtxSymbol]: {
@@ -94,7 +94,7 @@ export function position(): IParser<
 > {
   return <C extends PositionContext>(
     input: string,
-    context?: C
+    context?: C,
   ): Result<string, Position, ErrorKind.MissingPositionContext, C> => {
     if (!context?.[positionCtxSymbol]) {
       return {
@@ -138,11 +138,11 @@ export function position(): IParser<
  */
 export type Span<T> = {
   /** Parsed value. */
-  value: T
+  value: T,
   /** Start position. (Inclusive) */
-  start: Position
+  start: Position,
   /** End position. (Exclusive) */
-  end: Position
+  end: Position,
 }
 
 /**
@@ -175,7 +175,7 @@ export type Span<T> = {
  * @param parser embedded parser
  */
 export function spanned<O, E, CtxIn, CtxOut>(
-  parser: IParser<O, E, string, CtxIn, CtxOut>
+  parser: IParser<O, E, string, CtxIn, CtxOut>,
 ): IParser<
   Span<O>,
   E | ErrorKind.MissingPositionContext,

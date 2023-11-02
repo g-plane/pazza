@@ -1,6 +1,6 @@
-import { test, expect } from 'vitest'
-import { pass, fail } from './_'
-import { or, choice, digit, alpha, map, ErrorKind } from '../src'
+import { expect, test } from 'vitest'
+import { ErrorKind, alpha, choice, digit, map, or } from '../src'
+import { fail, pass } from './_'
 
 test('or', () => {
   expect(or(pass(1), pass(2))('')).toEqual({

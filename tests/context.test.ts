@@ -1,5 +1,5 @@
-import { test, expect } from 'vitest'
-import { digit, map, ErrorKind, IParser, Input } from '../src'
+import { expect, test } from 'vitest'
+import { ErrorKind, IParser, Input, digit, map } from '../src'
 
 test('context', () => {
   const myContext = { key: 'value' }
@@ -20,13 +20,13 @@ test('context', () => {
 
   type State = { state: number }
   function requireState<O, E, I extends Input>(
-    parser: IParser<O, E, I>
+    parser: IParser<O, E, I>,
   ): IParser<O, E, I, State> {
     return <C extends State>(input: I, context: C = Object.create(null)) =>
       parser(input, context)
   }
   function injectState<O, E, I extends Input>(
-    parser: IParser<O, E, I>
+    parser: IParser<O, E, I>,
   ): IParser<O, E, I, unknown, State> {
     return <C extends object>(input: I, context: C = Object.create(null)) =>
       parser(input, Object.assign(context, {} as State))

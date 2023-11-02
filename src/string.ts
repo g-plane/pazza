@@ -11,11 +11,11 @@ import { ErrorKind } from './error.js'
  * @param literal string literal
  */
 export function string<S extends string>(
-  literal: S
+  literal: S,
 ): IParser<S, ErrorKind.String, string> {
   function parse<C, I extends string>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, S, ErrorKind.String, C> {
     const { literal } = parse
     if (input.slice(0, literal.length) === literal) {
@@ -49,11 +49,11 @@ export function string<S extends string>(
  * @param charParser embedded character parser
  */
 export function string0<E, CtxIn, CtxOut>(
-  charParser: IParser<string, E, string, CtxIn, CtxOut>
+  charParser: IParser<string, E, string, CtxIn, CtxOut>,
 ): IParser<string, E, string, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, string, E, C & CtxOut> {
     const { charParser } = parse
     let output = ''
@@ -89,11 +89,11 @@ export function string0<E, CtxIn, CtxOut>(
  * @param charParser embedded character parser
  */
 export function string1<E, CtxIn, CtxOut>(
-  charParser: IParser<string, E, string, CtxIn, CtxOut>
+  charParser: IParser<string, E, string, CtxIn, CtxOut>,
 ): IParser<string, E, string, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, string, E, C & CtxOut> {
     const { charParser } = parse
     let output = ''

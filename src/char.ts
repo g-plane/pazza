@@ -23,13 +23,13 @@ function ensureSingleCharacter(str: string): asserts str is string {
  * @param char character to be parsed
  */
 export function char<Char extends string>(
-  char: Char
+  char: Char,
 ): IParser<Char, ErrorKind.Char, string> {
   ensureSingleCharacter(char)
 
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, Char, ErrorKind.Char, C> {
     const { char, charCode } = parse
     if (input.charCodeAt(0) === charCode) {
@@ -62,7 +62,7 @@ export function char<Char extends string>(
 export function anyChar(): IParser<string, ErrorKind.AnyChar, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, string, ErrorKind.AnyChar, C> => {
     if (input === '') {
       return {
@@ -98,7 +98,7 @@ export function oneOfChars<S extends readonly string[]>(
 
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, S[number], ErrorKind.OneOfChars, C> {
     const firstCharCode = input.charCodeAt(0)
 
@@ -126,7 +126,6 @@ export function oneOfChars<S extends readonly string[]>(
 /**
  * Parse any character but not in provided characters.
  *
- *
  *     const parser = noneOfChars("a", "b");
  *     parser("a").ok === false;
  *     parser("c").output === "c";
@@ -140,7 +139,7 @@ export function noneOfChars<S extends readonly string[]>(
 
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, string, ErrorKind.NoneOfChars, C> {
     const firstCharCode = input.charCodeAt(0)
     if (parse.charCodes.includes(firstCharCode)) {
@@ -177,14 +176,14 @@ export function noneOfChars<S extends readonly string[]>(
  */
 export function escapedWith<V>(
   controlChar: string,
-  entries: readonly (readonly [string, V])[]
+  entries: readonly (readonly [string, V])[],
 ): IParser<V, ErrorKind.EscapedWith, string> {
   ensureSingleCharacter(controlChar)
   entries.forEach(([key]) => ensureSingleCharacter(key))
 
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, V, ErrorKind.EscapedWith, C> {
     const firstCharCode = input.charCodeAt(0)
 
@@ -237,13 +236,13 @@ export function escapedWith<V>(
  */
 export function escapedBy<V>(
   controlChar: string,
-  transformer: (char: string) => V
+  transformer: (char: string) => V,
 ): IParser<V, ErrorKind.EscapedBy, string> {
   ensureSingleCharacter(controlChar)
 
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, V, ErrorKind.EscapedBy, C> {
     if (input.length < 2) {
       return {
@@ -300,7 +299,7 @@ type OctalDigit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
 export function octal(): IParser<OctalDigit, ErrorKind.Octal, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, OctalDigit, ErrorKind.Octal, C> => {
     const charCode = input.charCodeAt(0)
     if (charCode >= 48 && charCode <= 55) {
@@ -332,7 +331,7 @@ type Digit = OctalDigit | '8' | '9'
 export function digit(): IParser<Digit, ErrorKind.Digit, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, Digit, ErrorKind.Digit, C> => {
     const charCode = input.charCodeAt(0)
     if (charCode >= 48 && charCode <= 57) {
@@ -381,7 +380,7 @@ type HexCase = 'both' | 'upper' | 'lower'
  * @param hexCase Hexadecimal case. Default is "both".
  */
 export function hex(
-  hexCase: HexCase = 'both'
+  hexCase: HexCase = 'both',
 ): IParser<
   Hexadecimal,
   ErrorKind.Hex | ErrorKind.UpperHex | ErrorKind.LowerHex,
@@ -389,7 +388,7 @@ export function hex(
 > {
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<
     string,
     Hexadecimal,
@@ -552,7 +551,7 @@ export function alpha(): IParser<
 > {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, LowerAlpha | UpperAlpha, ErrorKind.Alphabet, C> => {
     const charCode = input.charCodeAt(0)
     if (
@@ -585,7 +584,7 @@ export function alpha(): IParser<
 export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, LowerAlpha, ErrorKind.LowerAlphabet, C> => {
     const charCode = input.charCodeAt(0)
     if (charCode >= 97 && charCode <= 122) {
@@ -615,7 +614,7 @@ export function lower(): IParser<LowerAlpha, ErrorKind.LowerAlphabet, string> {
 export function upper(): IParser<UpperAlpha, ErrorKind.UpperAlphabet, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, UpperAlpha, ErrorKind.UpperAlphabet, C> => {
     const charCode = input.charCodeAt(0)
     if (charCode >= 65 && charCode <= 90) {

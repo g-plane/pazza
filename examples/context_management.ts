@@ -1,6 +1,6 @@
 import { produce } from 'immer'
 import createStore, { type Store } from 'unistore'
-import { between, sepBy, digit, char, IParser, ErrorKind } from '../src'
+import { ErrorKind, IParser, between, char, digit, sepBy } from '../src'
 
 type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 export type Context = Record<Digit, number>
@@ -19,12 +19,12 @@ export const parserContext: Context = {
 }
 
 function parseDigitArray(
-  digitParser: () => IParser<Digit, ErrorKind.Digit, string, Context>
+  digitParser: () => IParser<Digit, ErrorKind.Digit, string, Context>,
 ) {
   return between(char('['), char(']'), sepBy(char(','), digitParser()))
 }
 
-//#region using Immer
+// #region using Immer
 function parseDigitWithImmer(): IParser<
   Digit,
   ErrorKind.Digit,
@@ -49,9 +49,9 @@ function parseDigitWithImmer(): IParser<
 export function contextedParserWithImmer() {
   return parseDigitArray(parseDigitWithImmer)
 }
-//#endregion
+// #endregion
 
-//#region using unistore
+// #region using unistore
 
 // unistore is a state management library which similar to Redux
 // but more easy to use and simpler.
@@ -64,7 +64,7 @@ function parseDigitWithUnistore(): IParser<
 > {
   return (
     input: string,
-    context: Store<Context> = createStore(parserContext)
+    context: Store<Context> = createStore(parserContext),
   ) => {
     const result = digit()(input, context)
     if (!result.ok) {
@@ -85,4 +85,4 @@ export function contextedParserWithUnistore() {
 export function createUnistoreContext() {
   return createStore(parserContext)
 }
-//#endregion
+// #endregion

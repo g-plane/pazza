@@ -1,13 +1,13 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
-  between,
-  serial,
-  prefix,
-  suffix,
-  char,
-  digit,
   ErrorKind,
   IParser,
+  between,
+  char,
+  digit,
+  prefix,
+  serial,
+  suffix,
 } from '../src'
 
 test('between', () => {
@@ -47,7 +47,7 @@ test('serial', () => {
   parser3('', { t2: 0 })
   // @ts-expect-error
   parser3('', { t1: 0, t2: '' })
-  const _: { t1: string; t2: number; t3: boolean } = parser3('', {
+  const _: { t1: string, t2: number, t3: boolean } = parser3('', {
     t1: '',
     t2: 0,
     t3: true,

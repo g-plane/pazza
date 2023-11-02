@@ -1,5 +1,5 @@
-import { test, expect } from 'vitest'
-import { string, string0, string1, digit, ErrorKind } from '../src'
+import { expect, test } from 'vitest'
+import { ErrorKind, digit, string, string0, string1 } from '../src'
 
 test('string', () => {
   expect(string('str')('string')).toEqual({

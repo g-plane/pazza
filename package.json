@@ -14,8 +14,8 @@
     "build": "tsc -p .",
     "prepublishOnly": "pnpm build",
     "test": "vitest",
-    "fmt": "prettier --write src tests examples",
-    "fmt:check": "prettier --check src tests examples"
+    "fmt": "dprint fmt",
+    "fmt:check": "dprint check"
   },
   "types": "./dist/index.d.ts",
   "type": "module",
@@ -29,8 +29,8 @@
   ],
   "devDependencies": {
     "@gplane/tsconfig": "^6.0.0",
+    "dprint": "^0.42.5",
     "immer": "^10.0.1",
-    "prettier": "^2.8.8",
     "typescript": "^5.0.4",
     "unistore": "^3.5.2",
     "vite": "^4.3.1",

@@ -14,11 +14,11 @@ import type { IParser, Input, Result } from './core.js'
  */
 export function or<L, R, E, I extends Input, CtxIn, CtxOut>(
   left: IParser<L, unknown, I, CtxIn, CtxOut>,
-  right: IParser<R, E, I, CtxIn, CtxOut>
+  right: IParser<R, E, I, CtxIn, CtxOut>,
 ): IParser<L | R, E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, L | R, E, C & CtxOut> {
     const result = left(input, context)
     if (result.ok) {
@@ -35,23 +35,23 @@ export function or<L, R, E, I extends Input, CtxIn, CtxOut>(
 
 type ChoiceOutput<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = P[number] extends IParser<infer O, infer _, I, infer _, infer _> ? O : never
 type ChoiceError<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = P[number] extends IParser<infer _, infer E, I, infer _, infer _> ? E : never
 type ChoiceCtxIn<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = P[number] extends IParser<infer _, infer _, I, infer C, infer _> ? C : never
 type ChoiceCtxOut<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = P[number] extends IParser<infer _, infer _, I, infer _, infer C> ? C : never
 type ChoiceParser<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = IParser<
   ChoiceOutput<I, P>,
   ChoiceError<I, P>,
@@ -61,7 +61,7 @@ type ChoiceParser<
 >
 type ChoiceResult<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = Result<
   I,
   ChoiceOutput<I, P>,
@@ -83,7 +83,7 @@ type ChoiceResult<
  * @param parsers Alternative parsers. Order is insensitive.
  */
 export function choice<
-  P extends readonly IParser<unknown, unknown, string, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, string, unknown, unknown>[],
 >(...parsers: P): ChoiceParser<string, P>
 /**
  * Attempt to run each parser of a list of parsers.
@@ -99,15 +99,15 @@ export function choice<
  * @param parsers Alternative parsers. Order is insensitive.
  */
 export function choice<
-  P extends readonly IParser<unknown, unknown, Uint8Array, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, Uint8Array, unknown, unknown>[],
 >(...parsers: P): ChoiceParser<Uint8Array, P>
 export function choice<
   I extends Input,
-  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[]
+  P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 >(...parsers: P): ChoiceParser<I, P> {
   function parse<C extends ChoiceCtxIn<I, P>>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): ChoiceResult<I, P> {
     const { parsers } = parse
     const lastIndex = parsers.length - 1

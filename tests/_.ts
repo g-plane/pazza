@@ -3,7 +3,7 @@ import type { IParser, Input, Result } from '../src'
 export function pass<T>(output: T): IParser<T, never, Input> {
   return <C>(
     _: Input,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<Input, T, never, C> => {
     return {
       ok: true,
@@ -17,7 +17,7 @@ export function pass<T>(output: T): IParser<T, never, Input> {
 export function fail<T>(): IParser<T, string, Input> {
   return <C>(
     input: Input,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<Input, T, string, C> => {
     return {
       ok: false,

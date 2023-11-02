@@ -1,6 +1,6 @@
-import { test, expect } from 'vitest'
-import { pass } from './_'
+import { expect, test } from 'vitest'
 import { lazy } from '../src'
+import { pass } from './_'
 
 test('lazy', () => {
   const parser = lazy(() => pass('kumiko'))

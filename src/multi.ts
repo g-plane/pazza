@@ -1,4 +1,4 @@
-import type { IParser, IAlwaysOkParser, Input, Result } from './core.js'
+import type { IAlwaysOkParser, IParser, Input, Result } from './core.js'
 import { ErrorKind } from './error.js'
 
 interface MinCountError<T, E extends ErrorKind> {
@@ -12,9 +12,8 @@ type NeverFailOnZeroCountParser<
   E extends ErrorKind,
   I extends Input,
   CtxIn,
-  CtxOut
-> = Count extends 0
-  ? IAlwaysOkParser<T[], I, CtxIn, CtxOut>
+  CtxOut,
+> = Count extends 0 ? IAlwaysOkParser<T[], I, CtxIn, CtxOut>
   : IParser<T[], MinCountError<T, E>, I, CtxIn, CtxOut>
 
 /**
@@ -43,11 +42,11 @@ export function many<
   CtxIn,
   CtxOut,
   Min extends number,
-  Max extends number
+  Max extends number,
 >(
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min,
-  max: Max
+  max: Max,
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.Many, I, CtxIn, CtxOut> {
   if (min > max) {
     throw new RangeError('Maximum value must be greater than minimum value.')
@@ -55,7 +54,7 @@ export function many<
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], MinCountError<T, ErrorKind.Many>, C & CtxOut> {
     const { min, max } = parse
 
@@ -106,11 +105,11 @@ export function many<
  * @param parser embedded parser
  */
 export function many0<T, E, I extends Input, CtxIn, CtxOut>(
-  parser: IParser<T, E, I, CtxIn, CtxOut>
+  parser: IParser<T, E, I, CtxIn, CtxOut>,
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], E, C & CtxOut> {
     const items: T[] = []
 
@@ -143,11 +142,11 @@ export function many0<T, E, I extends Input, CtxIn, CtxOut>(
  * @param parser embedded parser
  */
 export function many1<T, E, I extends Input, CtxIn, CtxOut>(
-  parser: IParser<T, E, I, CtxIn, CtxOut>
+  parser: IParser<T, E, I, CtxIn, CtxOut>,
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], E, C & CtxOut> {
     const items: T[] = []
 
@@ -185,11 +184,11 @@ export function many1<T, E, I extends Input, CtxIn, CtxOut>(
  */
 export function manyUntil<T, U, E, I extends Input, CtxIn, CtxOut>(
   parser: IParser<T, E, I, CtxIn, CtxOut>,
-  end: IParser<U, unknown, I, CtxIn, CtxOut>
+  end: IParser<U, unknown, I, CtxIn, CtxOut>,
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], E, C & CtxOut> {
     const { parser, end } = parse
     const output: T[] = []
@@ -245,7 +244,7 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min | 0 = 0,
-  max = Infinity
+  max = Infinity,
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.SepBy, I, CtxIn, CtxOut> {
   if (min > max) {
     throw new RangeError('Maximum value must be greater than minimum value.')
@@ -253,7 +252,7 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], MinCountError<T, ErrorKind.SepBy>, C & CtxOut> {
     const { min, max, parser, separator } = parse
     const output: T[] = []
@@ -320,11 +319,11 @@ export function sepBy<T, E, I extends Input, CtxIn, CtxOut, Min extends number>(
  */
 export function sepBy1<T, E, I extends Input, CtxIn, CtxOut>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
-  parser: IParser<T, E, I, CtxIn, CtxOut>
+  parser: IParser<T, E, I, CtxIn, CtxOut>,
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], E, C & CtxOut> {
     const { parser, separator } = parse
     const output: T[] = []
@@ -379,12 +378,12 @@ export function sepEndBy<
   I extends Input,
   CtxIn,
   CtxOut,
-  Min extends number
+  Min extends number,
 >(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
   parser: IParser<T, E, I, CtxIn, CtxOut>,
   min: Min | 0 = 0,
-  max = Infinity
+  max = Infinity,
 ): NeverFailOnZeroCountParser<Min, T, ErrorKind.SepEndBy, I, CtxIn, CtxOut> {
   if (min > max) {
     throw new RangeError('Maximum value must be greater than minimum value.')
@@ -392,7 +391,7 @@ export function sepEndBy<
 
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], MinCountError<T, ErrorKind.SepEndBy>, C & CtxOut> {
     const { min, max, parser, separator } = parse
     const output: T[] = []
@@ -459,11 +458,11 @@ export function sepEndBy<
  */
 export function sepEndBy1<T, E, I extends Input, CtxIn, CtxOut>(
   separator: IParser<unknown, unknown, I, CtxIn, CtxOut>,
-  parser: IParser<T, E, I, CtxIn, CtxOut>
+  parser: IParser<T, E, I, CtxIn, CtxOut>,
 ): IParser<T[], E, I, CtxIn, CtxOut> {
   function parse<C extends CtxIn>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, T[], E, C & CtxOut> {
     const output: T[] = []
 

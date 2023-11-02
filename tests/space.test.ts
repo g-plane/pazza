@@ -1,16 +1,16 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
-  space,
-  cr,
-  lf,
-  crlf,
-  linebreak,
-  tab,
-  whitespace,
-  trim,
-  eof,
-  alpha,
   ErrorKind,
+  alpha,
+  cr,
+  crlf,
+  eof,
+  lf,
+  linebreak,
+  space,
+  tab,
+  trim,
+  whitespace,
 } from '../src'
 
 test('space', () => {

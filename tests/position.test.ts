@@ -1,16 +1,16 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
-  withPositionCtx,
-  position,
-  spanned,
-  prefix,
-  string,
   ErrorKind,
   Result,
+  position,
+  prefix,
+  spanned,
+  string,
+  withPositionCtx,
 } from '../src'
 
 function omitPositionContext(
-  result: Result<string, unknown, unknown, Record<string | symbol, unknown>>
+  result: Result<string, unknown, unknown, Record<string | symbol, unknown>>,
 ) {
   const ctx = result.context
   result.context = Object.keys(ctx).reduce(

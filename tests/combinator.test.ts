@@ -1,7 +1,7 @@
-import { test, expect } from 'vitest'
-import { pass, fail } from './_'
+import { expect, test } from 'vitest'
 import { map, mapErr, optional, satisfy } from '../src'
 import { ErrorKind } from '../src/error'
+import { fail, pass } from './_'
 
 test('map', () => {
   expect(map(pass(10), (num) => num + 1)('')).toEqual({

@@ -11,11 +11,11 @@ import type { IParser, Input, Result } from './core.js'
  * @param fn Function that returns a parser.
  */
 export function lazy<O, E, I extends Input>(
-  fn: () => IParser<O, E, I>
+  fn: () => IParser<O, E, I>,
 ): IParser<O, E, I> {
   function parse<C>(
     input: I,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<I, O, E, C> {
     parse.parser ??= parse.fn()
 

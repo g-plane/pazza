@@ -9,7 +9,7 @@ import { ErrorKind } from './error.js'
 export function space(): IParser<' ', ErrorKind.Space, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, ' ', ErrorKind.Space, C> => {
     if (input.charCodeAt(0) === 32) {
       return {
@@ -37,7 +37,7 @@ export function space(): IParser<' ', ErrorKind.Space, string> {
 export function cr(): IParser<'\r', ErrorKind.CarriageReturn, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, '\r', ErrorKind.CarriageReturn, C> => {
     if (input.charCodeAt(0) === 13) {
       return {
@@ -65,7 +65,7 @@ export function cr(): IParser<'\r', ErrorKind.CarriageReturn, string> {
 export function lf(): IParser<'\n', ErrorKind.LineFeed, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, '\n', ErrorKind.LineFeed, C> => {
     if (input.charCodeAt(0) === 10) {
       return {
@@ -97,7 +97,7 @@ export function crlf(): IParser<
 > {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, '\r\n', ErrorKind.CarriageReturnLineFeed, C> => {
     if (input.charCodeAt(0) === 13 && input.charCodeAt(1) === 10) {
       return {
@@ -130,7 +130,7 @@ export function linebreak(): IParser<
 > {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, '\n' | '\r\n', ErrorKind.Linebreak, C> => {
     const firstCharCode = input.charCodeAt(0)
     if (firstCharCode === 10) {
@@ -166,7 +166,7 @@ export function linebreak(): IParser<
 export function tab(): IParser<'\t', ErrorKind.Tab, string> {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, '\t', ErrorKind.Tab, C> => {
     if (input.charCodeAt(0) === 9) {
       return {
@@ -218,9 +218,31 @@ type Whitespace =
   | '\u205F'
   | '\u3000'
 const UNICODE_WHITESPACE = [
-  0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x0085, 0x00a0, 0x1680,
-  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008,
-  0x2009, 0x200a, 0x2028, 0x2029, 0x202f, 0x205f, 0x3000,
+  0x0009,
+  0x000a,
+  0x000b,
+  0x000c,
+  0x000d,
+  0x0020,
+  0x0085,
+  0x00a0,
+  0x1680,
+  0x2000,
+  0x2001,
+  0x2002,
+  0x2003,
+  0x2004,
+  0x2005,
+  0x2006,
+  0x2007,
+  0x2008,
+  0x2009,
+  0x200a,
+  0x2028,
+  0x2029,
+  0x202f,
+  0x205f,
+  0x3000,
 ]
 
 /**
@@ -235,7 +257,7 @@ export function whitespace(): IParser<
 > {
   return <C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, Whitespace, ErrorKind.Whitespace, C> => {
     if (UNICODE_WHITESPACE.includes(input.charCodeAt(0))) {
       return {
@@ -264,11 +286,11 @@ export function whitespace(): IParser<
  * @param parser embedded parser
  */
 export function trim<O, E>(
-  parser: IParser<O, E, string>
+  parser: IParser<O, E, string>,
 ): IParser<O, E, string> {
   function parse<C>(
     input: string,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<string, O, E, C> {
     return parse.parser(input.trimStart(), context)
   }
@@ -288,7 +310,7 @@ export function trim<O, E>(
 export function eof(): IParser<undefined, ErrorKind.EndOfFile, Input> {
   return <C>(
     input: Input,
-    context: C = Object.create(null)
+    context: C = Object.create(null),
   ): Result<Input, undefined, ErrorKind.EndOfFile, C> => {
     if (input.length === 0) {
       return {

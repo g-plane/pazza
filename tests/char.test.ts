@@ -1,18 +1,18 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
-  char,
-  anyChar,
-  oneOfChars,
-  noneOfChars,
-  escapedWith,
-  escapedBy,
-  octal,
-  digit,
-  hex,
-  alpha,
-  lower,
-  upper,
   ErrorKind,
+  alpha,
+  anyChar,
+  char,
+  digit,
+  escapedBy,
+  escapedWith,
+  hex,
+  lower,
+  noneOfChars,
+  octal,
+  oneOfChars,
+  upper,
 } from '../src'
 
 test('char', () => {

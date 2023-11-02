@@ -1,10 +1,10 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
   Context,
   contextedParserWithImmer,
   contextedParserWithUnistore,
-  parserContext,
   createUnistoreContext,
+  parserContext,
 } from './context_management'
 
 const text = '[1,2,2,4,6,3,6,3,9,3,2,3,7,5,3]'

@@ -1,5 +1,8 @@
-import { test, expect } from 'vitest'
+import { expect, test } from 'vitest'
 import {
+  ErrorKind,
+  char,
+  digit,
   many,
   many0,
   many1,
@@ -8,9 +11,6 @@ import {
   sepBy1,
   sepEndBy,
   sepEndBy1,
-  digit,
-  char,
-  ErrorKind,
 } from '../src'
 
 test('many', () => {
