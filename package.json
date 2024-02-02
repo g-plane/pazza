@@ -29,7 +29,7 @@
   ],
   "devDependencies": {
     "@gplane/tsconfig": "^6.0.0",
-    "dprint": "^0.42.5",
+    "dprint": "^0.45.0",
     "immer": "^10.0.1",
     "typescript": "^5.0.4",
     "unistore": "^3.5.2",

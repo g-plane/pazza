@@ -22,8 +22,7 @@ test('context', () => {
   function requireState<O, E, I extends Input>(
     parser: IParser<O, E, I>,
   ): IParser<O, E, I, State> {
-    return <C extends State>(input: I, context: C = Object.create(null)) =>
-      parser(input, context)
+    return <C extends State>(input: I, context: C = Object.create(null)) => parser(input, context)
   }
   function injectState<O, E, I extends Input>(
     parser: IParser<O, E, I>,

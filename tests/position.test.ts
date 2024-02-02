@@ -1,13 +1,5 @@
 import { expect, test } from 'vitest'
-import {
-  ErrorKind,
-  Result,
-  position,
-  prefix,
-  spanned,
-  string,
-  withPositionCtx,
-} from '../src'
+import { ErrorKind, Result, position, prefix, spanned, string, withPositionCtx } from '../src'
 
 function omitPositionContext(
   result: Result<string, unknown, unknown, Record<string | symbol, unknown>>,

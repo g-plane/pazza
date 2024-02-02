@@ -1,14 +1,5 @@
 import { expect, test } from 'vitest'
-import {
-  ErrorKind,
-  IParser,
-  between,
-  char,
-  digit,
-  prefix,
-  serial,
-  suffix,
-} from '../src'
+import { ErrorKind, IParser, between, char, digit, prefix, serial, suffix } from '../src'
 
 test('between', () => {
   expect(between(char('['), char(']'), digit())('[5]')).toEqual(digit()('5'))

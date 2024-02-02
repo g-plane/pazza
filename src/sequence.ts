@@ -62,8 +62,7 @@ type SerialOutput<
   I extends Input,
   P extends readonly IParser<unknown, unknown, I, unknown, unknown>[],
 > = {
-  [K in keyof P]: P[K] extends IParser<infer O, infer _, I, infer _, infer _>
-    ? O
+  [K in keyof P]: P[K] extends IParser<infer O, infer _, I, infer _, infer _> ? O
     : never
 }
 type SerialError<
